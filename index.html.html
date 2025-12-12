@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hide's Official Profile</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    
+    <!-- Babel for in-browser compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['"Zen Old Mincho"', 'serif'],
+              sans: ['"Lato"', 'sans-serif'],
+            },
+            colors: {
+              beige: {
+                50: '#fcfbf9',
+                100: '#f5f2eb',
+                200: '#ebe4d4',
+                300: '#dfd2b6',
+                400: '#ccb68e',
+                500: '#b89b6c',
+                600: '#9d7f52',
+                800: '#68543b',
+              }
+            },
+            keyframes: {
+              shimmer: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(100%)' }
+              },
+              'gentle-bounce': {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-3px)' }
+              },
+              'fade-in-up': {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' }
+              },
+              'fade-in-down': {
+                '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' }
+              },
+              blob: {
+                "0%": { transform: "translate(0px, 0px) scale(1)" },
+                "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                "100%": { transform: "translate(0px, 0px) scale(1)" }
+              }
+            },
+            animation: {
+              shimmer: 'shimmer 2s infinite',
+              'gentle-bounce': 'gentle-bounce 2s infinite ease-in-out',
+              'fade-in-up': 'fade-in-up 0.5s ease-out forwards',
+              'fade-in-down': 'fade-in-down 0.8s ease-out forwards',
+              blob: "blob 7s infinite",
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Import Map: Defines where to load libraries from -->
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.263.1",
+    "@google/genai": "https://esm.sh/@google/genai@0.1.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+    
+    <style>
+      body { background-color: #fcfbf9; }
+      .scrollbar-hide::-webkit-scrollbar { display: none; }
+      .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- MAIN APP LOGIC (Combined for Browser Compatibility) -->
+    <script type="text/babel" data-type="module">
+      import React, { useState, useEffect, useRef } from 'react';
+      import ReactDOM from 'react-dom/client';
+      import { GoogleGenAI } from '@google/genai';
+      import { 
+        ChevronRight, MousePointerClick, Heart, BookOpen, Star, 
+        Sparkles, Video, Gift, Smartphone, UserCheck, Zap, Book, 
+        Instagram, Send, X, MessageCircle, ArrowLeft, User
+      } from 'lucide-react';
+
+      // --- CONSTANTS ---
+      // 注意: 公開リポジトリにAPIキーを直接コミットしないでください。
+      // 動作テスト時はここにキーを入れてください。
+      const GOOGLE_API_KEY = ""; 
+
+      const PROFILE_DATA = {
+        name: "ひで (Hide)",
+        title: "波動タロット鑑定士 / スピリチュアル研究家 / 著作家",
+        bio: `【自分らしく生きる】をテーマに、見えない世界（波動・チャクラ）を論理的に紐解く鑑定と講座を提供。
+TikTok・Instagram総フォロワー数万人。
+鑑定歴10年以上、延べ鑑定数1万件以上。
+「占い」を単なる予言ではなく「人生を好転させるツール」として伝える活動をしています。`,
+        imageUrl: "", // 画像なしでもアイコンが表示されます
+        social: {
+          instagram: "https://www.instagram.com/talot_relife_fukuoka/",
+          tiktok: "https://www.tiktok.com/@relife397"
+        },
+        books: [
+          { title: "AI時代の副業占い教科書", url: "#", imageUrl: "" },
+          { title: "神様との合図は、拍手だった！", url: "#", imageUrl: "" }
+        ]
+      };
+
+      const UserSegment = { SEEKER: 'SEEKER', LEARNER: 'LEARNER' };
+
+      const SEGMENTS = {
+        [UserSegment.SEEKER]: {
+          id: UserSegment.SEEKER,
+          title: "占ってほしい方",
+          subtitle: "For Seekers",
+          description: "悩みや不安を解消し、前向きな未来へ。",
+          themeColor: "bg-rose-50",
+          ctaText: "鑑定希望のLINE登録はこちら",
+          lineUrl: "https://lin.ee/pobhb6E",
+          benefits: [
+            { icon: "zap", text: "波動・チャクラ70問診断が無料", subtext: "今のエネルギー状態を可視化", isRecommended: true },
+            { icon: "heart", text: "恋愛・復縁診断が無料", subtext: "あの人の気持ち、今後の展開" },
+            { icon: "smartphone", text: "TikTokで継続して鑑定可能", subtext: "ライブ配信での優先案内も", isRecommended: true },
+            { icon: "star", text: "個人鑑定料が特別割引", subtext: "LINE登録者限定クーポン" },
+            { icon: "gift", text: "催しやイベントのご案内", subtext: "限定ワークショップなど" },
+          ]
+        },
+        [UserSegment.LEARNER]: {
+          id: UserSegment.LEARNER,
+          title: "占いを学びたい方",
+          subtitle: "For Learners",
+          description: "スピリチュアルを仕事に。副業・本業を目指す。",
+          themeColor: "bg-emerald-50",
+          ctaText: "スクール情報のLINE登録はこちら",
+          lineUrl: "https://lin.ee/B60wnBc",
+          benefits: [
+            { icon: "book", caption: "Amazonで絶賛発売中！", text: "副業占い師の本が無料", subtext: "未経験から始めるロードマップ", isRecommended: true },
+            { icon: "user-check", caption: "期間限定", text: "霊視による適性診断40分", subtext: "あなたの隠れた才能を見つけます", isRecommended: true },
+            { icon: "sparkles", text: "波動タロット通信講座無料", subtext: "7日間の集中プログラム" },
+            { icon: "video", text: "計60分動画4本プレゼント", subtext: "波動やタロットの基礎を網羅" },
+            { icon: "book-open", text: "タロットの基本E-book無料", subtext: "すぐに使える実践テキスト" },
+          ]
+        }
+      };
+
+      const SYSTEM_INSTRUCTION = `
+      You are "Hide", a professional fortune teller.
+      Act as a concierge. Ask 1-2 short questions to decide if the user is a "Seeker" (wants reading) or "Learner" (wants to learn).
+      Recommend the appropriate LINE account.
+      Response MUST be in Japanese.
+      `;
+
+      // --- SERVICES ---
+      let chatSession = null;
+      const initChat = async () => {
+        if (!GOOGLE_API_KEY) return "申し訳ありません。現在、自動応答チャットは準備中です。";
+        try {
+          const ai = new GoogleGenAI({ apiKey: GOOGLE_API_KEY });
+          chatSession = ai.chats.create({
+            model: 'gemini-2.5-flash',
+            config: { systemInstruction: SYSTEM_INSTRUCTION, temperature: 0.7 },
+          });
+          const response = await chatSession.sendMessage({
+            message: "挨拶をして、お客様の今の悩みや興味について優しく問いかけてください。（短めに）"
+          });
+          return response.text || "こんにちは。ひでです。";
+        } catch (error) {
+          console.error(error);
+          return "こんにちは。ご訪問ありがとうございます。";
+        }
+      };
+
+      const sendMessage = async (message) => {
+        if (!chatSession) await initChat();
+        if (!chatSession) return "エラーが発生しました。";
+        try {
+          const response = await chatSession.sendMessage({ message });
+          return response.text;
+        } catch (error) {
+          return "現在応答できません。";
+        }
+      };
+
+      // --- COMPONENTS ---
+      const IconRenderer = ({ iconName, className }) => {
+        const icons = {
+          'heart': <Heart className={className} />,
+          'book-open': <BookOpen className={className} />,
+          'star': <Star className={className} />,
+          'sparkles': <Sparkles className={className} />,
+          'video': <Video className={className} />,
+          'gift': <Gift className={className} />,
+          'smartphone': <Smartphone className={className} />,
+          'user-check': <UserCheck className={className} />,
+          'zap': <Zap className={className} />,
+          'book': <Book className={className} />,
+        };
+        return icons[iconName] || <Star className={className} />;
+      };
+
+      const BenefitList = ({ benefits }) => (
+        <div className="space-y-3 mt-4">
+          {benefits.map((benefit, index) => (
+            <div key={index} className={`flex items-start gap-3 p-2 rounded-lg transition-colors ${benefit.isRecommended ? 'bg-yellow-50/80 ring-1 ring-yellow-200' : 'hover:bg-white/60'}`}>
+              <div className="p-2 rounded-full bg-white shadow-sm text-gray-600 mt-1">
+                <IconRenderer iconName={benefit.icon} className={`w-4 h-4 ${benefit.isRecommended ? 'text-yellow-600' : ''}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                {benefit.caption && <p className="text-[10px] font-bold text-orange-600 mb-0.5">{benefit.caption}</p>}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-sm font-bold text-gray-700 font-serif">{benefit.text}</p>
+                  {benefit.isRecommended && <span className="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded shadow-sm font-bold animate-pulse">おすすめ</span>}
+                </div>
+                {benefit.subtext && <p className="text-xs text-gray-500 mt-0.5">{benefit.subtext}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+      const LineIcon = ({ className }) => (
+        <svg viewBox="0 0 48 48" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 5C13.5 5 5 12.4 5 21.5c0 4.8 2.4 9.1 6.2 12.1-.3 1.1-2 7.7-2.3 8.7 0 0-.4 1.8 1 1.1 1.2-.6 7.4-4.8 10-6.6 2.7.7 5.6 1.1 8.5 1.1 10.5 0 19-7.4 19-16.5C43 12.4 34.5 5 24 5z" />
+        </svg>
+      );
+
+      const SegmentCard = ({ data, isActive, onClick }) => (
+        <div className={`relative overflow-hidden rounded-xl transition-all duration-500 border ${isActive ? 'shadow-xl ring-2 ring-beige-400 scale-[1.01]' : 'shadow-md hover:shadow-lg border-beige-100 opacity-95'} bg-white`}>
+          <div className={`px-4 py-3 ${data.themeColor} border-b border-beige-100 flex justify-between items-center cursor-pointer`} onClick={onClick}>
+            <div>
+              <h2 className="text-base font-bold font-serif text-gray-800">{data.title}</h2>
+              <span className="text-[10px] font-serif italic text-gray-500 tracking-widest">{data.subtitle}</span>
+            </div>
+            {isActive ? <div className="w-2 h-2 rounded-full bg-beige-500 animate-pulse"></div> : <ChevronRight size={16} className="text-gray-400" />}
+          </div>
+          <div className="p-4">
+            <p className="text-xs text-gray-600 mb-4 leading-relaxed border-l-2 border-beige-300 pl-3">{data.description}</p>
+            <div className="bg-beige-50/50 rounded-lg p-2 border border-beige-100/50">
+               <h3 className="text-[10px] font-bold text-beige-600 text-center uppercase tracking-widest mb-1">- Member Benefits -</h3>
+               <BenefitList benefits={data.benefits} />
+            </div>
+            <div className="mt-5 pt-2">
+               <a href={data.lineUrl} target="_blank" rel="noopener noreferrer" 
+                 className={`relative group w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl font-bold shadow-sm transition-all text-sm duration-300 overflow-hidden ${isActive ? 'bg-[#06c755] text-white shadow-lg shadow-green-200 scale-105' : 'bg-white text-[#06c755] border-2 border-[#06c755] hover:bg-green-50 animate-gentle-bounce'}`}
+                 onClick={() => { if(!isActive) onClick(); }}
+               >
+                 {isActive && <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/30 to-transparent z-10"></div>}
+                 <LineIcon className={`w-6 h-6 z-20 ${isActive ? 'text-white' : 'text-[#06c755]'}`} />
+                 <span className="tracking-wide z-20 flex flex-col items-start leading-tight">
+                   <span className="text-[10px] opacity-90 font-normal">{isActive ? '期間限定プレゼント付き' : '特典を受け取る'}</span>
+                   <span className="text-sm">{isActive ? data.ctaText : "LINE登録して詳細を見る"}</span>
+                 </span>
+                 {isActive ? <ChevronRight className="w-5 h-5 ml-auto z-20" /> : <MousePointerClick className="w-5 h-5 ml-auto z-20 animate-pulse" />}
+               </a>
+               <p className="text-[10px] text-center text-gray-400 mt-2">※LINE友だち追加画面へ移動します</p>
+            </div>
+          </div>
+        </div>
+      );
+
+      const SocialBadge = ({ icon, label, href }) => (
+        <a href={href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm text-gray-500 hover:text-white hover:bg-beige-400 transition-all border border-beige-100 text-[10px] font-medium">
+          {icon} <span>{label}</span>
+        </a>
+      );
+
+      const ProfileHeader = () => {
+        return (
+          <section className="animate-fade-in-down mb-6">
+            <div className="relative overflow-hidden bg-white/80 rounded-3xl border border-beige-200 shadow-lg backdrop-blur-sm p-5">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-beige-300/30 rounded-full blur-2xl pointer-events-none"></div>
+              <div className="flex items-start gap-5 relative z-10">
+                <div className="shrink-0">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-beige-400 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                    {PROFILE_DATA.imageUrl ? (
+                      <img src={PROFILE_DATA.imageUrl} alt={PROFILE_DATA.name} className="relative w-28 h-28 md:w-32 md:h-32 rounded-2xl object-cover border-[3px] border-white shadow-md" 
+                           onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.classList.remove('hidden'); }} />
+                    ) : (
+                      <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-beige-50 to-beige-200 border-[3px] border-white shadow-md flex items-center justify-center">
+                        <User className="text-beige-400 w-12 h-12" strokeWidth={1.5} />
+                      </div>
+                    )}
+                    <div className="hidden absolute top-0 left-0 w-28 h-28 rounded-2xl bg-gradient-to-br from-beige-50 to-beige-200 border-[3px] border-white shadow-md flex items-center justify-center">
+                       <User className="text-beige-400 w-12 h-12" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0 pt-1">
+                  <h1 className="text-xl md:text-2xl font-serif font-bold text-gray-800 tracking-wide mb-1">{PROFILE_DATA.name}</h1>
+                  <p className="text-beige-600 font-medium text-[10px] md:text-xs tracking-wider uppercase mb-3">{PROFILE_DATA.title}</p>
+                  <div className="flex flex-wrap gap-2 mb-1">
+                    <SocialBadge icon={<Instagram size={14} />} label="Instagram" href={PROFILE_DATA.social.instagram} />
+                    <SocialBadge icon={<span className="font-bold text-[10px]">Tik</span>} label="TikTok" href={PROFILE_DATA.social.tiktok} />
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 pt-4 border-t border-beige-100/60 relative z-10">
+                <div className="text-gray-600 text-xs md:text-sm leading-relaxed font-sans whitespace-pre-line mb-4">{PROFILE_DATA.bio}</div>
+                {PROFILE_DATA.books && (
+                  <div className="bg-beige-50/50 rounded-xl p-3 border border-beige-100/50">
+                    <h3 className="flex items-center gap-2 text-[10px] font-bold text-beige-800 uppercase tracking-widest mb-2">
+                      <Book size={12} className="text-beige-600" /> <span>Books / Media</span>
+                    </h3>
+                    <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+                      {PROFILE_DATA.books.map((book, idx) => (
+                        <div key={idx} className="flex items-center gap-3 bg-white p-2 pr-3 rounded-lg border border-beige-100 shadow-sm min-w-[200px]">
+                          <div className="w-12 h-16 bg-gray-50 rounded shadow-inner overflow-hidden shrink-0 flex items-center justify-center border border-gray-100">
+                             {book.imageUrl ? (
+                               <img src={book.imageUrl} alt={book.title} className="w-full h-full object-cover" onError={(e) => {e.target.style.display='none'; e.target.parentElement.querySelector('svg').style.display='block'}} />
+                             ) : null}
+                             <Book className="text-gray-300 w-6 h-6" strokeWidth={1.5} style={{display: book.imageUrl ? 'none' : 'block'}} />
+                          </div>
+                          <p className="text-xs font-bold text-gray-700 leading-tight line-clamp-2">{book.title}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      const PrivacyPolicy = ({ onBack }) => (
+        <div className="bg-white rounded-xl shadow-md border border-beige-200 p-6 md:p-8 animate-fade-in-up">
+          <button onClick={onBack} className="flex items-center gap-2 text-beige-600 hover:text-beige-800 transition-colors mb-6 text-sm font-bold">
+            <ArrowLeft size={16} /> <span>トップに戻る</span>
+          </button>
+          <h1 className="text-xl font-serif font-bold text-gray-800 mb-6 pb-2 border-b border-beige-200">プライバシーポリシー</h1>
+          <div className="space-y-6 text-sm text-gray-600 leading-relaxed">
+             <p>タロット邸デザイナーズ「Relife」は、お客様の個人情報を適切に管理します。（以下省略）...</p>
+          </div>
+          <button onClick={onBack} className="w-full mt-8 py-3 bg-beige-100 text-beige-800 rounded-lg font-bold text-sm">トップページに戻る</button>
+        </div>
+      );
+
+      const ConsultationBot = () => {
+        const [isOpen, setIsOpen] = useState(false);
+        const [messages, setMessages] = useState([]);
+        const [input, setInput] = useState('');
+        const [isLoading, setIsLoading] = useState(false);
+        const messagesEndRef = useRef(null);
+
+        useEffect(() => { if (isOpen && messages.length === 0) handleInit(); }, [isOpen]);
+        useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+        const handleInit = async () => {
+          setIsLoading(true);
+          const text = await initChat();
+          setMessages([{ id: 'init', role: 'model', text }]);
+          setIsLoading(false);
+        };
+        const handleSend = async () => {
+          if (!input.trim() || isLoading) return;
+          const userMsg = { id: Date.now().toString(), role: 'user', text: input };
+          setMessages(prev => [...prev, userMsg]);
+          setInput('');
+          setIsLoading(true);
+          const reply = await sendMessage(input);
+          setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'model', text: reply }]);
+          setIsLoading(false);
+        };
+        if (!GOOGLE_API_KEY) return null;
+
+        return (
+          <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+            {isOpen && (
+              <div className="bg-white rounded-2xl shadow-2xl w-[320px] md:w-[380px] h-[500px] flex flex-col border border-beige-200 mb-4 animate-in slide-in-from-bottom-5 fade-in">
+                <div className="bg-beige-100 p-4 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-beige-300 p-1 rounded-full"><Sparkles className="w-4 h-4 text-white"/></div>
+                    <div><p className="font-bold text-gray-700 text-sm">AIコンシェルジュ</p></div>
+                  </div>
+                  <button onClick={() => setIsOpen(false)}><X size={20} className="text-gray-400"/></button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-beige-50/30">
+                  {messages.map((msg) => (
+                    <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] rounded-2xl p-3 text-sm shadow-sm ${msg.role === 'user' ? 'bg-beige-600 text-white rounded-br-none' : 'bg-white text-gray-700 rounded-bl-none'}`}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+                <div className="p-3 bg-white border-t border-beige-100 flex gap-2">
+                  <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} className="flex-1 bg-beige-50 border border-beige-200 rounded-full px-4 py-2 text-sm outline-none" placeholder="メッセージ..." />
+                  <button onClick={handleSend} disabled={!input.trim()} className="bg-beige-600 text-white p-2 rounded-full"><Send size={18}/></button>
+                </div>
+              </div>
+            )}
+            <button onClick={() => setIsOpen(!isOpen)} className="group flex items-center gap-2 bg-gradient-to-r from-beige-500 to-beige-600 text-white py-3 px-5 rounded-full shadow-lg hover:-translate-y-1 transition-all">
+              {!isOpen && <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all whitespace-nowrap text-sm">相談チャット</span>}
+              {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
+            </button>
+          </div>
+        );
+      };
+
+      // --- MAIN APP ---
+      function App() {
+        const [activeSegment, setActiveSegment] = useState(null);
+        const [currentView, setCurrentView] = useState('HOME');
+        const toggleSegment = (s) => setActiveSegment(activeSegment === s ? null : s);
+
+        const renderHome = () => (
+          <>
+            <ProfileHeader />
+            <div className="text-center mb-6 px-2 animate-fade-in-up">
+               <p className="text-xs font-serif text-gray-500 mb-1">どちらに興味がありますか？</p>
+               <h2 className="text-lg font-bold text-gray-800 font-serif">あなたの目的に合わせて<br />特典をお選びください</h2>
+            </div>
+            <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-4">
+              <div className="transform transition-all duration-500 hover:-translate-y-1">
+                <SegmentCard data={SEGMENTS[UserSegment.SEEKER]} isActive={activeSegment === UserSegment.SEEKER} onClick={() => toggleSegment(UserSegment.SEEKER)}/>
+              </div>
+              <div className="transform transition-all duration-500 hover:-translate-y-1">
+                <SegmentCard data={SEGMENTS[UserSegment.LEARNER]} isActive={activeSegment === UserSegment.LEARNER} onClick={() => toggleSegment(UserSegment.LEARNER)}/>
+              </div>
+            </div>
+            <ConsultationBot />
+          </>
+        );
+
+        return (
+          <div className="min-h-screen bg-[#fcfbf9] text-gray-800 font-sans pb-24">
+            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+              <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-beige-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-50 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+            </div>
+            <div className="relative z-10 max-w-xl mx-auto px-4 pt-6">
+              {currentView === 'HOME' ? renderHome() : <PrivacyPolicy onBack={() => setCurrentView('HOME')} />}
+              <footer className="mt-8 text-center text-[10px] text-gray-400 space-y-2 pb-8 border-t border-beige-100 pt-6">
+                <p>© 2026 Hide Spiritual Works. All rights reserved.</p>
+                <button onClick={() => { setCurrentView('PRIVACY'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="underline">プライバシーポリシー</button>
+              </footer>
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<React.StrictMode><App /></React.StrictMode>);
+    </script>
+  </body>
+</html>
