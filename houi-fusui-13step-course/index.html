@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1テーマずつ13STEPで学ぶ 方位風水羅針術</title>
+<link rel="stylesheet" href="assets/style.css?v=20260925-1">
+</head>
+<body class="course13-home">
+
+<nav class="topnav">
+  <div class="bar">
+    <a class='logo' href='./'>方位風水羅針術<span>・完全版</span></a>
+    <div class="links">
+      <a class='current' href='./'>ホーム</a>
+      <a href='lesson1/'>講座を始める</a>
+      <a href="#toc">13STEP一覧</a>
+      <a href='final/'>最終課題</a>
+      <a href='bonus/'>特典</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">中学生でもわかる・実践型テキスト</span>
+    <h1>1テーマずつ13STEPで学ぶ<br><span class="accent" style="color:var(--pink);">方位風水羅針術</span></h1>
+    <div class="welcome-teacher"><div class="welcome-owl" aria-hidden="true">🦉</div><div id="welcome_greeting"><b>こんにちは！ フクロウ先生です。</b><p>あなた自身と練習ユーザーさんを実例にして、STEP1から一緒に学びましょう。</p></div></div>
+    <p class="sub">初心者が講義内容をきちんと理解し、自分や身近な人に当てはめながら、最後には誰でもやさしく鑑定できるようになる実践講座です。フクロウ先生と、1STEPずつ進みます。</p>
+    <div class="badges">
+      <span>📘 講義+表+図解+練習</span>
+      <span>🧭 八方位・九星・吉方位を網羅</span>
+      <span>🤖 生年月日を入れるだけで即プロンプト生成</span>
+      <span>🦉 フクロウ先生の解説＋毎回5問クイズ</span>
+      <span>🖨 印刷・スマホ対応</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section id="profiles" class="profile-setup">
+  <h2>🌟 最初に、2人の情報を登録しましょう</h2>
+  <p>ここで登録した下のお名前と生年月日は、この端末の中だけに保存されます。STEP1〜13でフクロウ先生がお名前を呼び、2人の星を実例にしながら講義を進めます。</p>
+  <div class="profile-columns">
+    <div class="profile-card learner">
+      <h3>① 受講するあなた自身</h3>
+      <div class="field"><label>下のお名前（ひらがな）</label><input type="text" id="learner_name" inputmode="text" pattern="[ぁ-ゖー]+" placeholder="例：ゆう" autocomplete="given-name"></div>
+      <div class="field"><label>生年月日</label><input type="date" id="learner_birth"></div>
+    </div>
+    <div class="profile-card client">
+      <h3>② 練習で鑑定する利用ユーザーさん</h3>
+      <div class="field"><label>下のお名前（ひらがな）</label><input type="text" id="client_name" inputmode="text" pattern="[ぁ-ゖー]+" placeholder="例：あかり" autocomplete="off"></div>
+      <div class="field"><label>生年月日</label><input type="date" id="client_birth"></div>
+    </div>
+  </div>
+  <button type="button" class="btn profile-save" onclick="saveCourseProfilesFromForm()">2人の情報を保存して講座を始める</button>
+  <p id="profile_status" class="profile-status" aria-live="polite"></p>
+  <div class="safe-box">名前はひらがなで入力してください。登録内容は外部へ送信されません。あとからこのページで何度でも変更できます。</div>
+</section>
+
+<section id="toc">
+  <h2 style="margin-top:40px;">📖 目次（ページ一覧）</h2>
+  <div class="point-box"><b>この講座のテーマ</b><br>用語だけを暗記するワークブックではありません。「何？ → なぜ必要？ → どこで使う？ → 自分の場合は？」の順で理解し、最後に実際の鑑定文まで作れるようになることがゴールです。</div>
+  <p>カードをタップすると、それぞれのページに移動します。最初から順番に読み進めるのがおすすめです。各ページの中の見出しはタップで開閉できます。</p>
+  <div class="tocgrid">
+    <a href='lesson1/'><span class="n">STEP 1</span>方位風水の全体像</a>
+    <a href='lesson2/'><span class="n">STEP 2</span>八方位</a>
+    <a href='lesson3/'><span class="n">STEP 3</span>五行</a>
+    <a href='lesson4/'><span class="n">STEP 4</span>八卦</a>
+    <a href='lesson5/'><span class="n">STEP 5</span>九星</a>
+    <a href='lesson6/'><span class="n">STEP 6</span>本命星</a>
+    <a href='lesson7/'><span class="n">STEP 7</span>月命星</a>
+    <a href='lesson8/'><span class="n">STEP 8</span>方位盤</a>
+    <a href='lesson9/'><span class="n">STEP 9</span>吉方位・注意方位</a>
+    <a href='lesson10/'><span class="n">STEP 10</span>住まい</a>
+    <a href='lesson11/'><span class="n">STEP 11</span>部屋</a>
+    <a href='lesson12/'><span class="n">STEP 12</span>行動への応用</a>
+    <a href='lesson13/'><span class="n">STEP 13</span>鑑定文・ChatGPT</a>
+    <a href='ng/'><span class="n">巻末</span>NG表現集・言い換え辞典</a>
+    <a href='worksheets/'><span class="n">巻末</span>ワークシート集</a>
+    <a href='final/'><span class="n">最終課題</span>アドバイス文を完成させる</a>
+    <a href='bonus/'><span class="n">特典</span>早見ミニ辞典カード</a>
+  </div>
+
+  <div class="svg-box">
+    <svg viewBox="0 0 920 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="13ステップ学習ロードマップ">
+      <line x1="40" y1="70" x2="880" y2="70" stroke="#ece7df" stroke-width="6"/>
+      <g font-size="12" font-family="inherit" text-anchor="middle">
+        <g><a href='lesson1/'><circle cx="40" cy="70" r="22" fill="#d6486b"/><text x="40" y="75" fill="#fff" font-weight="700">1</text></a>
+          <text x="40" y="120" fill="#2e2a25">全体像</text></g>
+        <g><a href='lesson2/'><circle cx="110" cy="70" r="22" fill="#e0812f"/><text x="110" y="75" fill="#fff" font-weight="700">2</text></a>
+          <text x="110" y="140" fill="#2e2a25">八方位</text></g>
+        <g><a href='lesson3/'><circle cx="180" cy="70" r="22" fill="#b8860b"/><text x="180" y="75" fill="#fff" font-weight="700">3</text></a>
+          <text x="180" y="120" fill="#2e2a25">五行</text></g>
+        <g><a href='lesson4/'><circle cx="250" cy="70" r="22" fill="#0f9494"/><text x="250" y="75" fill="#fff" font-weight="700">4</text></a>
+          <text x="250" y="140" fill="#2e2a25">八卦</text></g>
+        <g><a href='lesson5/'><circle cx="320" cy="70" r="22" fill="#7c5cd6"/><text x="320" y="75" fill="#fff" font-weight="700">5</text></a>
+          <text x="320" y="120" fill="#2e2a25">九星</text></g>
+        <g><a href='lesson6/'><circle cx="390" cy="70" r="22" fill="#238a4e"/><text x="390" y="75" fill="#fff" font-weight="700">6</text></a>
+          <text x="390" y="140" fill="#2e2a25">本命星</text></g>
+        <g><a href='lesson7/'><circle cx="460" cy="70" r="22" fill="#2b6fd1"/><text x="460" y="75" fill="#fff" font-weight="700">7</text></a>
+          <text x="460" y="120" fill="#2e2a25">月命星</text></g>
+        <g><a href='lesson8/'><circle cx="530" cy="70" r="22" fill="#d6486b"/><text x="530" y="75" fill="#fff" font-weight="700">8</text></a>
+          <text x="530" y="140" fill="#2e2a25">方位盤</text></g>
+        <g><a href='lesson9/'><circle cx="600" cy="70" r="22" fill="#e0812f"/><text x="600" y="75" fill="#fff" font-weight="700">9</text></a>
+          <text x="600" y="120" fill="#2e2a25">吉方位</text></g>
+        <g><a href='lesson10/'><circle cx="670" cy="70" r="22" fill="#b8860b"/><text x="670" y="75" fill="#fff" font-weight="700">10</text></a>
+          <text x="670" y="140" fill="#2e2a25">住まい</text></g>
+        <g><a href='lesson11/'><circle cx="740" cy="70" r="22" fill="#0f9494"/><text x="740" y="75" fill="#fff" font-weight="700">11</text></a>
+          <text x="740" y="120" fill="#2e2a25">部屋</text></g>
+        <g><a href='lesson12/'><circle cx="810" cy="70" r="22" fill="#7c5cd6"/><text x="810" y="75" fill="#fff" font-weight="700">12</text></a>
+          <text x="810" y="140" fill="#2e2a25">行動</text></g>
+        <g><a href='lesson13/'><circle cx="880" cy="70" r="22" fill="#238a4e"/><text x="880" y="75" fill="#fff" font-weight="700">13</text></a>
+          <text x="880" y="120" fill="#2e2a25">鑑定文</text></g>
+      </g>
+    </svg>
+    <div class="cap">学習ロードマップ：STEP1→13の順に進めば、最終的に自分で鑑定文まで作れるようになります（丸をタップでもジャンプできます）</div>
+  </div>
+
+  <div class="safe-box">この教材はすべて「傾向」「ヒント」として作られています。人生の大切な決断は、現実的な条件とご自身の気持ちを最優先にしてください。</div>
+</section>
+
+</div>
+
+<footer>
+  1テーマずつ13STEPで学ぶ 方位風水羅針術 ｜ 本教材は暮らしと行動を整えるための実践教材です。医療・金銭・恋愛の結果を保証するものではありません。
+</footer>
+
+<script src="assets/app.js?v=20260925-1"></script>
+</body>
+</html>

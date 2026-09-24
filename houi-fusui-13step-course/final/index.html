@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最終課題｜方位風水羅針術 完全版</title>
+<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="bar">
+    <a class='logo' href='../'>方位風水羅針術<span>・完全版</span></a>
+    <div class="links">
+      <a href='../'>ホーム</a>
+      <a href='../lesson1/'>講座を始める</a>
+      <a href='../#toc'>13STEP一覧</a>
+      <a href='../ng/'>NG表現</a>
+      <a href='../worksheets/'>シート</a>
+      <a class='current' href='../final/'>最終課題</a>
+      <a href='../bonus/'>特典</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+<section>
+  <h2 style="margin-top:40px;">🎓 最終課題：1人分の方位風水アドバイス文を完成させる</h2>
+  <p>生年月日と相談内容を入れると、本命星・月命星・年盤・月盤を自動算出し、ChatGPTにそのまま貼れるプロンプトを作ります。鑑定文の書き方は<a href='../lesson13/'>STEP13 鑑定文・ChatGPT</a>で復習できます。</p>
+
+  <div class="calc-box">
+    <h4>① 鑑定する方の情報を入力</h4>
+    <div class="form-grid">
+      <div class="field"><label>お名前</label><input type="text" id="f_name" placeholder="例：ゆうさん" oninput="updateFinalPrompt()"></div>
+      <div class="field"><label>生年月日</label><input type="date" id="f_birth" oninput="updateFinalPrompt()"></div>
+      <div class="field"><label>相談ジャンル</label><select id="f_genre" oninput="updateFinalPrompt()"><option>総合</option><option>引越し</option><option>旅行</option><option>仕事</option><option>金運</option><option>恋愛</option><option>住まい</option></select></div>
+      <div class="field"><label>見たい方位</label><select id="f_dir" oninput="updateFinalPrompt()"><option>北</option><option>北東</option><option>東</option><option>南東</option><option>南</option><option>南西</option><option>西</option><option>北西</option></select></div>
+      <div class="field"><label>調べたい年月日</label><input type="date" id="f_target" oninput="updateFinalPrompt()"></div>
+      <div class="field"><label>日盤の中心星（任意）</label><select id="f_day" oninput="updateFinalPrompt()"><option value="">選択しない</option><option value="1">一白水星</option><option value="2">二黒土星</option><option value="3">三碧木星</option><option value="4">四緑木星</option><option value="5">五黄土星</option><option value="6">六白金星</option><option value="7">七赤金星</option><option value="8">八白土星</option><option value="9">九紫火星</option></select></div>
+      <div class="field full"><label>相談内容</label><textarea id="f_content" rows="3" placeholder="例：来月の引越し先の方位が気になります" oninput="updateFinalPrompt()"></textarea></div>
+    </div>
+    <h4>② 自動算出結果</h4>
+    <div class="badge-row" id="f_badges"><div class="starbadge"><span class="dot" style="background:#ccc"></span><div><span class="label">計算待ち</span><span class="value">生年月日を入力してください</span></div></div></div>
+  </div>
+
+  <h3 class="subtitle">③ ChatGPT用プロンプト</h3>
+  <p>入力するたびに自動更新されます。コピーしてChatGPTに貼り付けてください。</p>
+  <div class="prompt-box">
+    <button class="copy-btn" onclick="copyPrompt('f_prompt', this)">📋 コピーする</button>
+    <textarea id="f_prompt" readonly style="width:100%;min-height:430px;background:transparent;color:inherit;border:none;font-family:ui-monospace,Consolas,monospace;font-size:12.8px;line-height:1.8;resize:vertical;"></textarea>
+  </div>
+  <div class="safe-box">星の計算は教材用の参考値です。節入り時刻の境界に生まれた方など、正式な鑑定と差が出る場合は、<a href='../lesson6/'>STEP6 本命星</a>・<a href='../lesson7/'>STEP7 月命星</a>の講義で境界の考え方を確認してください。</div>
+
+  <div class="pager">
+    <a href='../worksheets/'><span class="dir">◀ 戻る</span>ワークシート集</a>
+    <a class='next' href='../bonus/'><span class="dir">次へ ▶</span>巻末特典</a>
+  </div>
+</section>
+</div>
+
+<footer>1テーマずつ13STEPで学ぶ 方位風水羅針術</footer>
+<script src="../assets/app.js?v=20260925-1"></script>
+<script>
+function updateFinalPrompt(){
+  const name = document.getElementById('f_name').value || '○○さん';
+  const b = parseDateInput(document.getElementById('f_birth').value);
+  const t = parseDateInput(document.getElementById('f_target').value);
+  const genre = document.getElementById('f_genre').value;
+  const dir = document.getElementById('f_dir').value;
+  const content = document.getElementById('f_content').value || '（相談内容が未入力です）';
+  const day = document.getElementById('f_day').value;
+  let honmei=null, getsumei=null, nenban=null, getsuban=null;
+  if(b){ honmei=getYearStar(b.y,b.m,b.d).star; getsumei=getMonthStar(b.y,b.m,b.d).star; }
+  if(t){ nenban=getYearStar(t.y,t.m,t.d).star; getsuban=getMonthStar(t.y,t.m,t.d).star; }
+  document.getElementById('f_badges').innerHTML = starBadgeHTML('本命星',honmei)+starBadgeHTML('月命星',getsumei)+starBadgeHTML('年盤の中心星',nenban)+starBadgeHTML('月盤の中心星',getsuban);
+  const dateText = function(x){ return x ? x.y+'年'+x.m+'月'+x.d+'日' : '未入力'; };
+  const starText = function(n){ return n ? STAR_NAMES[n] : '未入力'; };
+  document.getElementById('f_prompt').value = 'あなたは方位風水羅針術の鑑定文作成サポートです。\n以下の情報から、初心者にもわかりやすい、温かく現実的なアドバイス文を作ってください。\n\n【相談者】\n名前：'+name+'\n生年月日：'+dateText(b)+'\n本命星：'+starText(honmei)+'\n月命星：'+starText(getsumei)+'\n相談ジャンル：'+genre+'\n相談内容：'+content+'\n\n【方位情報】\n見たい方位：'+dir+'\n調べたい日：'+dateText(t)+'\n年盤の中心星：'+starText(nenban)+'\n月盤の中心星：'+starText(getsuban)+'\n日盤の中心星：'+(day ? STAR_NAMES[parseInt(day,10)] : '未選択')+'\n\n【文章構成】\n1. やさしい導入\n2. 本命星と月命星から見た傾向\n3. 見たい方位の意味\n4. 年盤・月盤・日盤から見たテーマ\n5. 住まいや移動への応用\n6. 注意点\n7. 現実的な行動アドバイス\n8. 前向きな締め\n\n【必ず守ること】\n・結果を断定しない\n・病気、収入、恋愛や結婚の成就を保証しない\n・安全、費用、家族事情などの現実条件を優先する\n・自然で温かい日本語で、900〜1200文字程度にする';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  const client=getClientProfile();if(client.name)document.getElementById('f_name').value=client.name;if(client.birth)document.getElementById('f_birth').value=client.birth;
+  const d=new Date(), iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  document.getElementById('f_target').value=iso;
+  updateFinalPrompt();
+});
+</script>
+</body>
+</html>

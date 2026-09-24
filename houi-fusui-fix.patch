@@ -1,0 +1,804 @@
+From fd3239fb68790600a1829a8de7c198f352f101e0 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 24 Sep 2026 19:46:06 +0000
+Subject: [PATCH] Fix broken links on GitHub Pages, month-star table, and fill
+ in lesson content
+
+---
+ assets/app.js         | 10 +++--
+ assets/course13.js    | 64 +++++++++++++++++++++++++----
+ assets/style.css      |  1 +
+ bonus/index.html      | 33 +++++++--------
+ final/index.html      | 35 +++++++---------
+ index.html            | 94 ++++++++++++++++++++++++-------------------
+ lesson1/index.html    |  6 +--
+ lesson10/index.html   |  6 +--
+ lesson11/index.html   |  6 +--
+ lesson12/index.html   |  6 +--
+ lesson13/index.html   |  6 +--
+ lesson2/index.html    |  6 +--
+ lesson3/index.html    |  6 +--
+ lesson4/index.html    |  6 +--
+ lesson5/index.html    |  6 +--
+ lesson6/index.html    |  6 +--
+ lesson7/index.html    |  6 +--
+ lesson8/index.html    |  6 +--
+ lesson9/index.html    |  6 +--
+ ng/index.html         | 31 ++++++--------
+ worksheets/index.html | 31 ++++++--------
+ 21 files changed, 210 insertions(+), 167 deletions(-)
+
+diff --git a/assets/app.js b/assets/app.js
+index e9a4872..01b9d5b 100644
+--- a/assets/app.js
++++ b/assets/app.js
+@@ -1,3 +1,5 @@
++/* サイトのルートURL（どの階層のページから読み込んでも正しいリンクを作るため） */
++const SITE_ROOT=(function(){const sc=document.currentScript||document.querySelector('script[src*="assets/app.js"]');return sc?sc.src.replace(/assets\/app\.js.*$/,''):'./';})();
+ /* ===== 共通データ ===== */
+ const STAR_NAMES = {1:'一白水星',2:'二黒土星',3:'三碧木星',4:'四緑木星',5:'五黄土星',6:'六白金星',7:'七赤金星',8:'八白土星',9:'九紫火星'};
+ const STAR_ELEMENT = {1:'水',2:'土',3:'木',4:'木',5:'土',6:'金',7:'金',8:'土',9:'火'};
+@@ -6,8 +8,8 @@ const ELEMENT_HEX = {'木':'#3f9142','火':'#d9482f','土':'#b5811a','金':'#8a7
+ const GROUP_OF = {1:'A',4:'A',7:'A',2:'B',5:'B',8:'B',3:'C',6:'C',9:'C'};
+ const MONTH_TABLE = {
+   A:[8,7,6,5,4,3,2,1,9,8,7,6],
+-  B:[5,4,3,2,1,9,8,7,6,5,4,3],
+-  C:[2,1,9,8,7,6,5,4,3,2,1,9]
++  B:[2,1,9,8,7,6,5,4,3,2,1,9],
++  C:[5,4,3,2,1,9,8,7,6,5,4,3]
+ };
+ const GEN = {'木':'火','火':'土','土':'金','金':'水','水':'木'};
+ const DIRECTIONS = ['北','北東','東','南東','南','南西','西','北西'];
+@@ -72,9 +74,9 @@ function renderWelcomeGreeting(){
+ }
+ function myStarBannerHTML(){
+   const l=getLearnerProfile(),c=getClientProfile(),b=l.birth?parseDateInput(l.birth):null,cb=c.birth?parseDateInput(c.birth):null;
+-  if(!b)return '<div class="mystar-banner empty">🦉 まず最初に、受講者と練習ユーザーの情報を登録しましょう。<a href="index.html#profiles">登録する ▶</a></div>';
++  if(!b)return '<div class="mystar-banner empty">🦉 まず最初に、受講者と練習ユーザーの情報を登録しましょう。<a href="'+SITE_ROOT+'#profiles">登録する ▶</a></div>';
+   const ys=getYearStar(b.y,b.m,b.d),el=STAR_ELEMENT[ys.star],clientText=cb?' ／ '+escapeHTML(courseName(c,'練習ユーザー'))+'さん：<b>'+STAR_NAMES[getYearStar(cb.y,cb.m,cb.d).star]+'</b>':' ／ 練習ユーザーは未登録';
+-  return '<div class="mystar-banner"><span class="dot" style="background:'+ELEMENT_HEX[el]+'"></span>'+escapeHTML(courseName(l,'あなた'))+'さん：<b>'+STAR_NAMES[ys.star]+'</b>'+clientText+' <a href="index.html#profiles">変更する</a></div>';
++  return '<div class="mystar-banner"><span class="dot" style="background:'+ELEMENT_HEX[el]+'"></span>'+escapeHTML(courseName(l,'あなた'))+'さん：<b>'+STAR_NAMES[ys.star]+'</b>'+clientText+' <a href="'+SITE_ROOT+'#profiles">変更する</a></div>';
+ }
+ function renderMyStarBanner(containerId){
+   const el = document.getElementById(containerId);
+diff --git a/assets/course13.js b/assets/course13.js
+index 210e18f..8cceca6 100644
+--- a/assets/course13.js
++++ b/assets/course13.js
+@@ -1,9 +1,9 @@
+ const COURSE13=[
+-{t:'方位風水の全体像',lead:'まず、方位・風水・家相・九星気学の役割を1つずつ整理します。',what:'方位風水は、方角・時間・住環境を手がかりに、暮らしと行動を整えるための知恵です。未来を固定するものではありません。',why:'最初に全体像を知ると、後の専門用語が「何のための道具か」を見失いません。',use:'旅行・引越し・住まい・仕事などを考える際、現実条件を整理する補助線として使います。',example:'方位が良くても危険な道は選ばない。安全と生活事情を先に確認します。',points:['方位風水は暮らしを整える知恵','風水は環境を見る','家相は間取りと方位を見る','九星気学は九星と時間・方位を見る','現実の安全を最優先する'],work:'自分が方位風水で知りたいことを1つ書いてみましょう。'},
+-{t:'八方位',lead:'北・北東・東・南東・南・南西・西・北西だけに集中します。',what:'八方位（はっぽうい）は、東西南北に4つの斜め方向を加えた8方向です。家や目的地の「住所」に当たります。',why:'場所の方位が決まらなければ、五行や八卦の意味を結びつけられません。',use:'家の中心から玄関を見る、自宅から目的地を見るときに使います。',example:'自宅の中心から見て玄関が右上なら、北を上にした図では北東です。',points:['北を基準にする','斜めを含めて8方向','家では中心から見る','移動では出発地から見る','最初は大まかな方向でよい'],work:'自宅の玄関と寝室がどちらの方位か調べましょう。'},
+-{t:'五行',lead:'木・火・土・金・水の5グループだけを学びます。',what:'五行（ごぎょう）は自然や物事の性質を5つに分類する考え方です。木は成長、火は明るさ、土は安定、金は収穫、水は流れを象徴します。',why:'方位・九星・色・行動の共通言語になるため、意味をつなげやすくなります。',use:'方位や九星の特徴を、生活の言葉へ言い換えるときに使います。',example:'東は木。朝日や成長を連想し、朝の換気や新しい習慣へつなげます。',points:['木は成長','火は明るさ','土は安定','金は収穫','水は流れ'],work:'自分の生活で木・火・土・金・水を1つずつ探しましょう。'},
+-{t:'八卦',lead:'8つの自然の象徴を、景色として覚えます。',what:'八卦（はっけ）は、乾（けん）・兌（だ）・離（り）・震（しん）・巽（そん）・坎（かん）・艮（ごん）・坤（こん）の8つです。',why:'方位の性格を「天・沢・火・雷・風・水・山・地」の景色で覚えやすくします。',use:'方位の意味を具体的な言葉や鑑定文に変えるときに使います。',example:'東は震＝雷。動き出す勢い、発展、音というイメージにつながります。',points:['乾は天・北西','兌は沢・西','離は火・南','震は雷・東','八卦は自然の景色で覚える'],work:'8つのうち、いちばん覚えやすい八卦と方位を書きましょう。'},
+-{t:'九星',lead:'9つの星を、まず自分と利用ユーザーさんの2枚から覚えます。',what:'九星（きゅうせい）は、一白水星から九紫火星までの9種類です。8方位に中央を加えた9つの席を巡ります。',why:'人の傾向と方位盤を結びつける、九星気学の中心語彙だからです。',use:'性格の傾向、得意なこと、注意点をやさしく言語化するときに使います。',example:'四緑木星なら、風のような調整力や縁をつなぐ力として読みます。',points:['九星は9種類','中央を含む9つの席','五行と結びつく','決めつけず傾向として読む','自分と身近な人から覚える'],work:'自分と利用ユーザーさんの九星を見比べ、似ている点を書きましょう。'},
++{t:'方位風水の全体像',lead:'まず、方位・風水・家相・九星気学の役割を1つずつ整理します。',what:'方位風水は、方角・時間・住環境を手がかりに、暮らしと行動を整えるための知恵です。未来を固定するものではありません。',why:'最初に全体像を知ると、後の専門用語が「何のための道具か」を見失いません。',use:'旅行・引越し・住まい・仕事などを考える際、現実条件を整理する補助線として使います。',example:'方位が良くても危険な道は選ばない。安全と生活事情を先に確認します。',deep:'<h3>4つの言葉の違いを表で整理</h3><div class="table-wrap"><table class="data"><caption>方位風水で使う4つの考え方</caption><thead><tr><th>言葉</th><th>何を見る？</th><th>身近なたとえ</th></tr></thead><tbody><tr><td>方位（ほうい）</td><td>自宅や家の中心から見た方向</td><td>地図の「住所」</td></tr><tr><td>風水（ふうすい）</td><td>光・風・水・物の置き方など住環境</td><td>部屋の「空気の流れ」</td></tr><tr><td>家相（かそう）</td><td>間取りと方位の関係</td><td>家の「健康診断」</td></tr><tr><td>九星気学（きゅうせいきがく）</td><td>生まれ年・月の星と、時期ごとの方位</td><td>人と時間の「天気予報」</td></tr></tbody></table></div><h3>この講座の進み方</h3><ol><li><b>STEP1〜5：</b>方位・五行・八卦・九星という「基本の単語」を覚えます。</li><li><b>STEP6〜9：</b>本命星・月命星・方位盤・吉方位で「人と時期」を読みます。</li><li><b>STEP10〜12：</b>住まい・部屋・行動へ応用します。</li><li><b>STEP13：</b>学んだことを鑑定文にまとめます。</li></ol><p>どのSTEPでも、<b>安全・健康・お金・家族や仕事の事情が最優先</b>です。方位風水はそれらを整理し、前向きに動くための「補助線」として使います。</p>',points:['方位風水は暮らしを整える知恵','風水は環境を見る','家相は間取りと方位を見る','九星気学は九星と時間・方位を見る','現実の安全を最優先する'],work:'自分が方位風水で知りたいことを1つ書いてみましょう。'},
++{t:'八方位',lead:'北・北東・東・南東・南・南西・西・北西だけに集中します。',what:'八方位（はっぽうい）は、東西南北に4つの斜め方向を加えた8方向です。家や目的地の「住所」に当たります。',why:'場所の方位が決まらなければ、五行や八卦の意味を結びつけられません。',use:'家の中心から玄関を見る、自宅から目的地を見るときに使います。',example:'自宅の中心から見て玄関が右上なら、北を上にした図では北東です。',deep:'<h3>八方位と五行・イメージの早見表</h3><div class="table-wrap"><table class="data"><caption>八方位の早見表</caption><thead><tr><th>方位</th><th>読み方</th><th>五行</th><th>イメージ</th></tr></thead><tbody><tr><td>北</td><td>きた</td><td>水</td><td>静けさ・休息・信頼</td></tr><tr><td>北東</td><td>ほくとう</td><td>土</td><td>切り替え・変化・節目</td></tr><tr><td>東</td><td>ひがし</td><td>木</td><td>成長・始まり・朝日</td></tr><tr><td>南東</td><td>なんとう</td><td>木</td><td>縁・調和・信用</td></tr><tr><td>南</td><td>みなみ</td><td>火</td><td>表現・明るさ・評価</td></tr><tr><td>南西</td><td>なんせい</td><td>土</td><td>安定・家庭・コツコツ</td></tr><tr><td>西</td><td>にし</td><td>金</td><td>楽しみ・実り・会話</td></tr><tr><td>北西</td><td>ほくせい</td><td>金</td><td>信頼・責任・目上</td></tr></tbody></table></div><h3>方位の測り方（3ステップ）</h3><ol><li><b>基準点を決める：</b>家の中なら家の中心、移動なら自宅です。</li><li><b>北を確認する：</b>スマホの方位磁石や地図アプリで北を確かめます。</li><li><b>8つに分ける：</b>基準点から見て、目的の場所がどの方向に入るかを見ます。</li></ol><p>流派によって、東西南北を30度、斜めを60度で区切る方法と、8方位を45度ずつ均等に区切る方法があります。この講座では、はじめは<b>45度ずつの大まかな区切り</b>で練習し、境目にある場合は「境界付近」とメモしておきましょう。</p>',points:['北を基準にする','斜めを含めて8方向','家では中心から見る','移動では出発地から見る','最初は大まかな方向でよい'],work:'自宅の玄関と寝室がどちらの方位か調べましょう。'},
++{t:'五行',lead:'木・火・土・金・水の5グループだけを学びます。',what:'五行（ごぎょう）は自然や物事の性質を5つに分類する考え方です。木は成長、火は明るさ、土は安定、金は収穫、水は流れを象徴します。',why:'方位・九星・色・行動の共通言語になるため、意味をつなげやすくなります。',use:'方位や九星の特徴を、生活の言葉へ言い換えるときに使います。',example:'東は木。朝日や成長を連想し、朝の換気や新しい習慣へつなげます。',deep:'<h3>五行の早見表</h3><div class="table-wrap"><table class="data"><caption>五行と方位・色・季節</caption><thead><tr><th>五行</th><th>性質</th><th>方位</th><th>色</th><th>季節</th></tr></thead><tbody><tr><td>木（もく）</td><td>成長・伸びる</td><td>東・南東</td><td>青・緑</td><td>春</td></tr><tr><td>火（か）</td><td>明るさ・情熱</td><td>南</td><td>赤・紫</td><td>夏</td></tr><tr><td>土（ど）</td><td>安定・育てる</td><td>中央・北東・南西</td><td>黄・茶</td><td>季節の変わり目</td></tr><tr><td>金（ごん）</td><td>収穫・まとめる</td><td>西・北西</td><td>白・金・銀</td><td>秋</td></tr><tr><td>水（すい）</td><td>流れ・知恵</td><td>北</td><td>黒・紺</td><td>冬</td></tr></tbody></table></div><h3>相生（そうじょう）と相剋（そうこく）</h3><ul><li><b>相生＝助け合う関係：</b>木→火→土→金→水→木。木が燃えて火が生まれ、火が灰（土）をつくり、土から金属が生まれ、金属の表面に水滴がつき、水が木を育てます。</li><li><b>相剋＝抑え合う関係：</b>木は土の養分を吸い、土は水をせき止め、水は火を消し、火は金を溶かし、金は木を切ります。</li></ul><p>相剋は「悪い関係」ではなく、<b>ブレーキやバランス役</b>と考えます。鑑定では「相性が悪い」と断定せず、「お互いに違う力を持っている」と伝えましょう。</p>',points:['木は成長','火は明るさ','土は安定','金は収穫','水は流れ'],work:'自分の生活で木・火・土・金・水を1つずつ探しましょう。'},
++{t:'八卦',lead:'8つの自然の象徴を、景色として覚えます。',what:'八卦（はっけ）は、乾（けん）・兌（だ）・離（り）・震（しん）・巽（そん）・坎（かん）・艮（ごん）・坤（こん）の8つです。',why:'方位の性格を「天・沢・火・雷・風・水・山・地」の景色で覚えやすくします。',use:'方位の意味を具体的な言葉や鑑定文に変えるときに使います。',example:'東は震＝雷。動き出す勢い、発展、音というイメージにつながります。',deep:'<h3>八卦の早見表（8つすべて）</h3><div class="table-wrap"><table class="data"><caption>八卦と方位・自然・家族</caption><thead><tr><th>八卦</th><th>読み方</th><th>自然の象徴</th><th>方位</th><th>家族の象徴</th></tr></thead><tbody><tr><td>乾</td><td>けん</td><td>天</td><td>北西</td><td>父</td></tr><tr><td>兌</td><td>だ</td><td>沢</td><td>西</td><td>末娘</td></tr><tr><td>離</td><td>り</td><td>火</td><td>南</td><td>次女</td></tr><tr><td>震</td><td>しん</td><td>雷</td><td>東</td><td>長男</td></tr><tr><td>巽</td><td>そん</td><td>風</td><td>南東</td><td>長女</td></tr><tr><td>坎</td><td>かん</td><td>水</td><td>北</td><td>次男</td></tr><tr><td>艮</td><td>ごん</td><td>山</td><td>北東</td><td>末息子</td></tr><tr><td>坤</td><td>こん</td><td>地</td><td>南西</td><td>母</td></tr></tbody></table></div><h3>覚え方のコツ</h3><ul><li><b>景色で覚える：</b>北西の空（天）、西の沢、南の太陽（火）、東の雷、南東の風、北の水、北東の山、南西の大地。</li><li><b>家族で覚える：</b>北西＝父と南西＝母が向かい合い、子どもたちが残りの方位に入ります。</li><li><b>五行とつなげる：</b>震・巽は木、離は火、坤・艮は土、乾・兌は金、坎は水です。</li></ul><p>この方位の並びは「後天八卦（こうてんはっけ）」と呼ばれ、方位風水や九星気学で使われる配置です。</p>',points:['八卦は8つの自然の象徴','乾は天・北西、坤は地・南西','離は火・南、坎は水・北','震は雷・東、巽は風・南東','兌は沢・西、艮は山・北東'],work:'8つのうち、いちばん覚えやすい八卦と方位を書きましょう。'},
++{t:'九星',lead:'9つの星を、まず自分と利用ユーザーさんの2枚から覚えます。',what:'九星（きゅうせい）は、一白水星から九紫火星までの9種類です。8方位に中央を加えた9つの席を巡ります。',why:'人の傾向と方位盤を結びつける、九星気学の中心語彙だからです。',use:'性格の傾向、得意なこと、注意点をやさしく言語化するときに使います。',example:'四緑木星なら、風のような調整力や縁をつなぐ力として読みます。',deep:'<h3>九星の早見表</h3><div class="table-wrap"><table class="data"><caption>九星と五行・定位・キーワード</caption><thead><tr><th>九星</th><th>読み方</th><th>五行</th><th>定位（もとの席）</th><th>キーワード</th></tr></thead><tbody><tr><td>一白水星</td><td>いっぱくすいせい</td><td>水</td><td>北</td><td>柔軟・聞く力</td></tr><tr><td>二黒土星</td><td>じこくどせい</td><td>土</td><td>南西</td><td>堅実・支える力</td></tr><tr><td>三碧木星</td><td>さんぺきもくせい</td><td>木</td><td>東</td><td>行動・スピード</td></tr><tr><td>四緑木星</td><td>しろくもくせい</td><td>木</td><td>南東</td><td>調整・縁をつなぐ</td></tr><tr><td>五黄土星</td><td>ごおうどせい</td><td>土</td><td>中央</td><td>中心・影響力</td></tr><tr><td>六白金星</td><td>ろっぱくきんせい</td><td>金</td><td>北西</td><td>責任・リーダー</td></tr><tr><td>七赤金星</td><td>しちせききんせい</td><td>金</td><td>西</td><td>喜び・社交</td></tr><tr><td>八白土星</td><td>はっぱくどせい</td><td>土</td><td>北東</td><td>節目・継続</td></tr><tr><td>九紫火星</td><td>きゅうしかせい</td><td>火</td><td>南</td><td>華やか・直感</td></tr></tbody></table></div><h3>九星を覚える3つのポイント</h3><ol><li><b>名前に答えがある：</b>「一白水星」なら数字＝一、色＝白、五行＝水です。</li><li><b>定位は方位盤の基本形：</b>五黄土星が中央にいる盤が基本の形で、STEP8の方位盤につながります。</li><li><b>性格は「傾向」：</b>同じ星でも、育った環境や月命星で表れ方は変わります。</li></ol>',points:['九星は9種類','中央を含む9つの席','五行と結びつく','決めつけず傾向として読む','自分と身近な人から覚える'],work:'自分と利用ユーザーさんの九星を見比べ、似ている点を書きましょう。'},
+ {t:'本命星',lead:'このSTEPでは本命星だけを理解します。',what:'本命星（ほんめいせい）は、生まれ年を基準にした、その人の基本となる九星です。立春付近は年の境界に注意します。',why:'自分らしさや大きな傾向を読む入口になり、方位との関係を見る基準にもなるからです。',use:'人物の基本傾向、強み、行動パターンを説明するときに使います。',example:'本命星が一白水星なら、柔軟性や聞く力を基本傾向として読みます。',points:['本命星は生まれ年が基準','基本的な傾向を見る','九星の1つが割り当てられる','立春付近は境界を確認','性格を断定しない'],work:'自分の本命星の強みを、日常の出来事と結びつけましょう。'},
+ {t:'月命星',lead:'本命星と混ぜず、内面を補う星として学びます。',what:'月命星（げつめいせい）は、生まれ月と節入りを基準にする補助的な九星です。内面や若い頃の傾向を見る流派があります。',why:'本命星だけでは説明しきれない、表に出にくい反応や気持ちを補うためです。',use:'本命星との共通点・違いを見て、その人の多面性を説明するときに使います。',example:'本命星は行動的でも、月命星が水なら内側では慎重、という読み方ができます。',deep:'<h3>月命星を読む3つの順番</h3><ol><li><b>生年月日を確認：</b>月の1日で機械的に切り替えるのではなく、二十四節気の「節入り」を境界にします。</li><li><b>本命星と分ける：</b>本命星は基本的な表れ方、月命星は内側の反応や身近な場面を補う星として見ます。</li><li><b>2つを組み合わせる：</b>同じ五行なら傾向が強まり、違う五行なら外面と内面の違いとして丁寧に説明します。</li></ol><p>節入り当日付近は、生まれた時刻や採用する暦で結果が変わる場合があります。自動計算を絶対視せず、正式な鑑定では暦を確認しましょう。</p>',points:['月命星は生まれ月が基準','節入りで月を区切る','内面の傾向を補う','本命星と役割が違う','2つの星を優劣で比べない'],work:'本命星と月命星の違いを、自分の外面・内面で考えましょう。'},
+ {t:'方位盤',lead:'9マスの地図の仕組みだけに集中します。',what:'方位盤（ほういばん）は、中央と八方位の9マスに九星を配置した図です。年盤・月盤・日盤で星の位置が変わります。',why:'「いつ、どの方位に、どの星がいるか」を整理する地図になるからです。',use:'旅行・引越しなどの時期と方位を読む前に確認します。',example:'年盤は長期、月盤は中期、日盤は短期の天気図のように使い分けます。',deep:'<h3>方位盤を読む4つの順番</h3><ol><li><b>盤の向きを確認：</b>伝統的な盤は南が上、北が下です。</li><li><b>中央星を確認：</b>その盤全体の基調となる九星を最初に見ます。</li><li><b>目的の方位を探す：</b>自宅から目的地が八方位のどこに入るかを確認します。</li><li><b>時間の盤を重ねる：</b>長期移動は年盤、実行月は月盤、短い予定は日盤も補助的に見ます。</li></ol><p>年盤・月盤・日盤は別々の答えを競わせるものではありません。長期から短期へ順に重ねる「大きな地図・中くらいの地図・当日の地図」と考えましょう。</p>',points:['方位盤は9マス','中央と八方位で構成','年盤は長期','月盤は中期','日盤は短期'],work:'年盤・月盤・日盤を、長期・中期・短期に分けて書きましょう。'},
+@@ -11,10 +11,58 @@ const COURSE13=[
+ {t:'住まい',lead:'家全体の中心・玄関・水回りを見る方法を学びます。',what:'住まいの風水は、家全体を一つの環境として見ます。まず中心、玄関、寝室、水回り、光と風を確認します。',why:'個別の色や小物より、家全体の安全・清潔・動線が土台だからです。',use:'引越し前の確認や、今の家の改善点を探すときに使います。',example:'玄関が暗ければ、方位色より先に照明・靴・匂い・通りやすさを整えます。',deep:'<h3>住まいを見る5つの順番</h3><ol><li><b>間取り図で中心を取る：</b>家全体を囲む形の中心を目安にします。欠けや張りが大きい複雑な間取りは、専門家の判断が必要な場合があります。</li><li><b>北を合わせる：</b>方位磁石や地図で北を確認し、中心から八方位へ分けます。</li><li><b>玄関を確認：</b>明るさ、靴、匂い、通りやすさを見ます。</li><li><b>寝室・水回りを確認：</b>休息、換気、湿気、カビなど現実的な状態を優先します。</li><li><b>改善は1か所ずつ：</b>危険、汚れ、暗さ、動線の順に直し、色や小物は最後に考えます。</li></ol><p>賃貸住宅でも大がかりな工事は必要ありません。掃除、換気、照明、収納量、家具の位置など、戻せる改善から始められます。</p>',points:['家の中心を確認','玄関は入口','水回りは清潔と換気','光と風を確認','安全な動線を優先'],work:'家全体で、最初に改善したい場所を1つ決めましょう。'},
+ {t:'部屋',lead:'寝室・仕事部屋など、一部屋ずつ役割に合わせて見ます。',what:'部屋の風水は、その部屋の用途と方位の性質を合わせて考えます。寝室は休息、仕事部屋は集中が主目的です。',why:'同じ方位でも、部屋の役割が違えば必要な整え方も変わるからです。',use:'家具・照明・換気・収納を、その部屋の目的に合わせて見直します。',example:'寝室では派手な開運色より、眠りやすい明るさ、温度、静けさを優先します。',points:['部屋の用途を先に決める','寝室は休息','仕事部屋は集中','収納は詰め込みすぎない','方位色は少量から試す'],work:'寝室か仕事部屋を選び、役割を邪魔する物を1つ見つけましょう。'},
+ {t:'行動への応用',lead:'知識を、今日できる小さな行動へ変えます。',what:'行動への応用とは、星や方位の意味を、掃除・準備・休息・確認など現実的な一歩に翻訳することです。',why:'知識だけでは暮らしは変わらず、大きすぎる提案は続かないからです。',use:'鑑定の最後に、相談者が自分で選べる行動案を示すときに使います。',example:'「東は成長」から、朝10分早く起きて窓を開ける、という行動へ変換します。',points:['行動は小さく具体的に','本人が選べる形にする','期限を決める','安全と費用を確認','できたことを振り返る'],work:'今週できる行動を1つ、いつ行うかまで書きましょう。'},
+-{t:'鑑定文・ChatGPT',lead:'学んだ1テーマずつを、やさしい鑑定文へまとめます。',what:'鑑定文は、星や方位の意味を相談内容と現実的な行動へ橋渡しする文章です。ChatGPTは下書きの補助に使います。',why:'用語を並べるだけでなく、相談者が理解し、次の一歩を選べる文章にするためです。',use:'個人鑑定・相性・住まい相談の最終的な伝え方として使います。',example:'「南は火」ではなく「明るさを意識し、照明や机上を整えてみましょう」と翻訳します。',points:['やさしい導入から始める','専門用語を説明する','結果を断定しない','現実的な行動を提案','ChatGPTの文を必ず見直す'],work:'利用ユーザーさんへ、強み1つと行動案1つを含む3行を書きましょう。'}
++{t:'鑑定文・ChatGPT',lead:'学んだ1テーマずつを、やさしい鑑定文へまとめます。',what:'鑑定文は、星や方位の意味を相談内容と現実的な行動へ橋渡しする文章です。ChatGPTは下書きの補助に使います。',why:'用語を並べるだけでなく、相談者が理解し、次の一歩を選べる文章にするためです。',use:'個人鑑定・相性・住まい相談の最終的な伝え方として使います。',example:'「南は火」ではなく「明るさを意識し、照明や机上を整えてみましょう」と翻訳します。',deep:'<h3>鑑定文の5つのパーツ</h3><div class="table-wrap"><table class="data"><caption>鑑定文の組み立て</caption><thead><tr><th>順番</th><th>パーツ</th><th>書く内容の例</th></tr></thead><tbody><tr><td>①</td><td>受け止め</td><td>ご相談ありがとうございます。〇〇について迷っていらっしゃるのですね。</td></tr><tr><td>②</td><td>星の説明</td><td>〇〇さんの本命星は△△です。□□な力を持ちやすい星です。</td></tr><tr><td>③</td><td>方位・時期</td><td>ご検討の方位は、今年は〜という意味を持つとされています。</td></tr><tr><td>④</td><td>行動の提案</td><td>まずは〜から始めてみてはいかがでしょうか。（2〜3案から選べる形）</td></tr><tr><td>⑤</td><td>締めと安全</td><td>最終的には、安全やご家族の事情を優先してご判断ください。応援しています。</td></tr></tbody></table></div><h3>ChatGPTに頼むときの4つのルール</h3><ol><li><b>情報をそろえて渡す：</b>生年月日、本命星・月命星、相談内容、見たい方位と時期。</li><li><b>口調を指定する：</b>「やさしく」「専門用語には読み方をつける」「断定しない」。</li><li><b>出力を必ず確認する：</b>星の計算、方位、現実の事情、NG表現がないかを見直します。</li><li><b>最後は自分の言葉で整える：</b>相談者の名前や気持ちに合わせて、1〜2文は必ず自分で書き足しましょう。</li></ol><p>最終課題ページでは、生年月日を入れるだけでChatGPT用のプロンプトが自動で作れます。NG表現集もあわせて確認しましょう。</p>',points:['やさしい導入から始める','専門用語を説明する','結果を断定しない','現実的な行動を提案','ChatGPTの文を必ず見直す'],work:'利用ユーザーさんへ、強み1つと行動案1つを含む3行を書きましょう。'}
+ ];
+ 
+ const COURSE_QUIZZES={
++1:[
++ {q:'方位風水の考え方として、講義に最も近いものは？',c:['未来を決定する占い','暮らしと行動を整えるための知恵','方位だけで全てを判断する方法'],a:1,e:'方位風水は未来を固定するものではなく、暮らしを整える補助線です。'},
++ {q:'間取りと方位の関係を見るのはどれ？',c:['家相','九星気学','五行'],a:0,e:'家相は間取りと方位の関係を見る考え方です。'},
++ {q:'九星気学が主に見るものは？',c:['家具の値段','九星と時間・方位','部屋の広さ'],a:1,e:'九星気学は、人の星と時期ごとの方位を見ます。'},
++ {q:'方位が良くても道が危険なときは？',c:['方位を優先して進む','安全を優先して見直す','気にせず出発する'],a:1,e:'どのSTEPでも、現実の安全が最優先です。'},
++ {q:'この講座の最終ゴールは？',c:['用語を丸暗記する','やさしい鑑定文を作れるようになる','怖い予言ができるようになる'],a:1,e:'最後は相談者の一歩を支える鑑定文を作れることがゴールです。'}],
++2:[
++ {q:'八方位に含まれないものは？',c:['北東','中央','南西'],a:1,e:'中央は方位盤の9マスには入りますが、八方位は8つの方向です。'},
++ {q:'家の中の方位を見るとき、基準にする点は？',c:['玄関','家の中心','一番広い部屋'],a:1,e:'家の中では家の中心から方位を見ます。'},
++ {q:'旅行の方位を見るときの基準は？',c:['自宅（出発地）','目的地の駅','勤務先'],a:0,e:'移動の方位は、ふだん住んでいる自宅から見ます。'},
++ {q:'東の五行は？',c:['金','木','水'],a:1,e:'東と南東は木です。'},
++ {q:'方位の境目付近に目的地がある場合は？',c:['適当に決める','「境界付近」とメモして慎重に扱う','必ず吉にする'],a:1,e:'境界付近は区切り方で結果が変わるため、メモして慎重に扱います。'}],
++3:[
++ {q:'五行の5つに含まれないものは？',c:['木','風','金'],a:1,e:'五行は木・火・土・金・水です。風は八卦の巽の象徴です。'},
++ {q:'相生の順番として正しいものは？',c:['木→火→土→金→水','木→金→火→水→土','水→火→木→土→金'],a:0,e:'木が火を生み、火が土を、土が金を、金が水を、水が木を生みます。'},
++ {q:'「水は火を消す」は何の関係？',c:['相生','相剋','比和'],a:1,e:'抑え合う関係を相剋といいます。'},
++ {q:'南の五行は？',c:['水','火','土'],a:1,e:'南は火。明るさや表現のイメージです。'},
++ {q:'相剋の伝え方として適切なのは？',c:['相性最悪と断定する','バランス役として説明する','関わらないよう勧める'],a:1,e:'相剋はブレーキやバランス役として、やさしく伝えます。'}],
++4:[
++ {q:'八卦はいくつある？',c:['5つ','8つ','9つ'],a:1,e:'乾・兌・離・震・巽・坎・艮・坤の8つです。'},
++ {q:'「震（しん）」の自然の象徴と方位は？',c:['雷・東','山・北東','風・南東'],a:0,e:'震は雷。動き出す勢いを表し、方位は東です。'},
++ {q:'北の八卦は？',c:['離','坎','艮'],a:1,e:'北は坎（かん）＝水です。'},
++ {q:'乾（けん）の家族の象徴は？',c:['母','父','長女'],a:1,e:'乾は天・北西・父。向かい合う坤（南西）は母です。'},
++ {q:'艮（ごん）の象徴は？',c:['山','沢','地'],a:0,e:'艮は山・北東。止まる、切り替えるイメージです。'}],
++5:[
++ {q:'九星は何種類？',c:['8種類','9種類','12種類'],a:1,e:'一白水星から九紫火星までの9種類です。'},
++ {q:'「三碧木星」の五行は？',c:['木','火','金'],a:0,e:'名前の最後の「木星」が五行を表しています。'},
++ {q:'定位（もとの席）が中央の星は？',c:['一白水星','五黄土星','九紫火星'],a:1,e:'五黄土星の定位は中央です。'},
++ {q:'九紫火星の定位は？',c:['北','南','西'],a:1,e:'九紫火星は火の星で、定位は南です。'},
++ {q:'九星の性格の読み方として適切なのは？',c:['決めつける','傾向として読む','悪い星を探す'],a:1,e:'九星は傾向として読み、決めつけないのが基本です。'}],
++6:[
++ {q:'本命星は何を基準に決まる？',c:['生まれ年','生まれ月','血液型'],a:0,e:'本命星は生まれ年を基準にした基本の星です。'},
++ {q:'九星気学の「年の切り替わり」の目安は？',c:['1月1日','立春（2月4日ごろ）','誕生日'],a:1,e:'九星気学では立春を年の境界にします。1月1日〜立春前生まれは前年の星になります。'},
++ {q:'1月20日生まれの人の本命星を調べるときは？',c:['その年の星で見る','前年の星で見る','どちらでもよい'],a:1,e:'立春前なので、前の年の本命星を使います。'},
++ {q:'本命星で主に読むものは？',c:['その人の基本的な傾向','その日の運勢だけ','家の間取り'],a:0,e:'本命星はその人の土台となる傾向を読む入口です。'},
++ {q:'本命星を伝えるときの姿勢は？',c:['性格を断定する','傾向や強みとしてやさしく伝える','短所だけを伝える'],a:1,e:'星は傾向として、強みから伝えるのが基本です。'}],
++7:[
++ {q:'月命星は何を基準に決まる？',c:['生まれ年だけ','生まれ月（節入り）','名前の画数'],a:1,e:'月命星は生まれ月と節入りを基準にします。'},
++ {q:'月の区切りとして使うのは？',c:['カレンダーの1日','二十四節気の節入り','満月の日'],a:1,e:'各月の節入りで月を区切ります。'},
++ {q:'月命星が補うものは？',c:['内面や身近な場面での反応','住所','職業の年収'],a:0,e:'月命星は本命星だけでは見えにくい内面を補います。'},
++ {q:'本命星と月命星の関係として正しいのは？',c:['どちらが上か比べる','役割の違う2つの星として組み合わせる','月命星だけを見ればよい'],a:1,e:'2つの星を優劣で比べず、組み合わせて多面性を読みます。'},
++ {q:'節入り当日付近に生まれた人の場合は？',c:['自動計算を絶対視せず暦を確認する','適当に決める','必ず前の月にする'],a:0,e:'生まれた時刻や暦で結果が変わる場合があるため、確認が必要です。'}],
++8:[
++ {q:'方位盤は何マス？',c:['8マス','9マス','12マス'],a:1,e:'中央と八方位の9マスです。'},
++ {q:'伝統的な方位盤の向きは？',c:['北が上','南が上','東が上'],a:1,e:'伝統的な盤は南が上、北が下です。地図と逆なので注意しましょう。'},
++ {q:'長期の計画（引越しなど）で主に見る盤は？',c:['年盤','日盤','時盤'],a:0,e:'年盤は長期、月盤は中期、日盤は短期の目安です。'},
++ {q:'方位盤を読むとき、最初に確認するのは？',c:['中央の星','一番良い方位','色'],a:0,e:'まず盤全体の基調となる中央星を確認します。'},
++ {q:'年盤・月盤・日盤の関係として正しいのは？',c:['別々の答えを競わせる','長期から短期へ順に重ねて見る','日盤だけ見ればよい'],a:1,e:'大きな地図・中くらいの地図・当日の地図として重ねて使います。'}],
+ 9:[
+  {q:'吉方位（きちほうい）の説明として、講義に最も近いものは？',c:['行けば必ず成功する方位','行動の追い風として参考にする方位','誰にとっても一年中同じ方位'],a:1,e:'吉方位は成功を保証するものではなく、行動を考える際の参考材料です。'},
+  {q:'方位を判定するとき、最初に確認することは？',c:['誰が移動するのか','開運色は何色か','目的地の名物は何か'],a:0,e:'本命星が違えば読み方も変わるため、まず「誰の移動か」を確認します。'},
+@@ -51,9 +99,9 @@ function renderCourse13(){
+  const n=parseInt(document.body.dataset.lesson,10),L=COURSE13[n-1];if(!L)return;
+  const learner=typeof getLearnerProfile==='function'?getLearnerProfile():{name:''},client=typeof getClientProfile==='function'?getClientProfile():{name:''};
+  const ln=escapeHTML(courseName(learner,'受講者')),cn=escapeHTML(courseName(client,'利用ユーザー'));
+- const prev=n===1?'index.html':'lesson'+(n-1)+'.html',next=n===13?'final.html':'lesson'+(n+1)+'.html';
++ const prev=n===1?SITE_ROOT:SITE_ROOT+'lesson'+(n-1)+'/',next=n===13?SITE_ROOT+'final/':SITE_ROOT+'lesson'+(n+1)+'/';
+  document.title='STEP'+n+' '+L.t+'｜方位風水羅針術';
+- document.getElementById('course-root').innerHTML='<nav class="topnav"><div class="bar"><a class="logo" href="index.html">方位風水羅針術<span>・1テーマ講座</span></a><div class="links"><a href="index.html">ホーム</a><a href="index.html#toc">13STEP一覧</a><a href="'+prev+'">前へ</a><a href="'+next+'">次へ</a></div></div></nav><div class="wrap"><section class="step"><div class="step-hero"><span class="num">STEP '+n+' / 13</span><h2>'+L.t+'</h2><p class="lead">'+L.lead+'</p></div><div class="teacher-talk"><div class="teacher-avatar">🦉</div><div class="teacher-bubble"><b>フクロウ先生</b><p><strong>'+ln+'さん、</strong>今回は「'+L.t+'」だけを学びます。ほかのテーマは混ぜず、'+cn+'さんにも説明できるところまで進みましょう。</p></div></div><details class="acc" open><summary>📖 講義：'+L.t+'とは？</summary><div class="acc-body"><div class="term-box"><b>何を学ぶ？</b> '+L.what+'</div><div class="point-box"><b>なぜ必要？</b> '+L.why+'</div><div class="example-box"><b>どこで使う？</b> '+L.use+'<br><b>具体例：</b>'+L.example+'</div></div></details><div class="quiz-recap"><h3>🦉 このSTEPの重要POINT</h3><ul>'+L.points.map(x=>'<li>'+x+'</li>').join('')+'</ul></div><details class="acc" open><summary>✍️ '+L.t+'のワーク</summary><div class="acc-body"><p>'+L.work+'</p><textarea class="course-answer" rows="4" placeholder="ここに書いてみましょう"></textarea></div></details><details class="acc course-quiz" open><summary>🦉 5問ミニクイズ</summary><div class="acc-body">'+L.points.map((x,i)=>'<fieldset class="quiz-q" data-answer="1"><legend>Q'+(i+1)+'. 講義のPOINTとして正しいですか？</legend><p>'+x+'</p><label><input type="radio" name="cq'+i+'" value="1"> ○ 正しい</label><label><input type="radio" name="cq'+i+'" value="0"> × 違う</label><div class="quiz-answer"></div></fieldset>').join('')+'<button class="btn course-check">採点する</button><div class="quiz-score"></div></div></details><div class="pager"><a href="'+prev+'"><span class="dir">◀ 戻る</span>'+(n===1?'ホーム':'STEP'+(n-1))+'</a><a class="next" href="'+next+'"><span class="dir">次へ ▶</span>'+(n===13?'最終課題':'STEP'+(n+1)+' '+COURSE13[n].t)+'</a></div></section></div><footer>方位風水羅針術｜1テーマずつ学ぶ13STEP｜STEP '+n+' / 13</footer>';
++ document.getElementById('course-root').innerHTML='<nav class="topnav"><div class="bar"><a class="logo" href="'+SITE_ROOT+'">方位風水羅針術<span>・1テーマ講座</span></a><div class="links"><a href="'+SITE_ROOT+'">ホーム</a><a href="'+SITE_ROOT+'#toc">13STEP一覧</a><a href="'+prev+'">前へ</a><a href="'+next+'">次へ</a></div></div></nav><div class="wrap"><section class="step"><div class="step-hero"><span class="num">STEP '+n+' / 13</span><h2>'+L.t+'</h2><p class="lead">'+L.lead+'</p></div><div class="teacher-talk"><div class="teacher-avatar">🦉</div><div class="teacher-bubble"><b>フクロウ先生</b><p><strong>'+ln+'さん、</strong>今回は「'+L.t+'」だけを学びます。ほかのテーマは混ぜず、'+cn+'さんにも説明できるところまで進みましょう。</p></div></div><details class="acc" open><summary>📖 講義：'+L.t+'とは？</summary><div class="acc-body"><div class="term-box"><b>何を学ぶ？</b> '+L.what+'</div><div class="point-box"><b>なぜ必要？</b> '+L.why+'</div><div class="example-box"><b>どこで使う？</b> '+L.use+'<br><b>具体例：</b>'+L.example+'</div></div></details><div class="quiz-recap"><h3>🦉 このSTEPの重要POINT</h3><ul>'+L.points.map(x=>'<li>'+x+'</li>').join('')+'</ul></div><details class="acc" open><summary>✍️ '+L.t+'のワーク</summary><div class="acc-body"><p>'+L.work+'</p><textarea class="course-answer" rows="4" placeholder="ここに書いてみましょう"></textarea></div></details><details class="acc course-quiz" open><summary>🦉 5問ミニクイズ</summary><div class="acc-body">'+L.points.map((x,i)=>'<fieldset class="quiz-q" data-answer="1"><legend>Q'+(i+1)+'. 講義のPOINTとして正しいですか？</legend><p>'+x+'</p><label><input type="radio" name="cq'+i+'" value="1"> ○ 正しい</label><label><input type="radio" name="cq'+i+'" value="0"> × 違う</label><div class="quiz-answer"></div></fieldset>').join('')+'<button class="btn course-check">採点する</button><div class="quiz-score"></div></div></details><div class="pager"><a href="'+prev+'"><span class="dir">◀ 戻る</span>'+(n===1?'ホーム':'STEP'+(n-1))+'</a><a class="next" href="'+next+'"><span class="dir">次へ ▶</span>'+(n===13?'最終課題':'STEP'+(n+1)+' '+COURSE13[n].t)+'</a></div></section></div><footer>方位風水羅針術｜1テーマずつ学ぶ13STEP｜STEP '+n+' / 13</footer>';
+  if(n===6){
+   const lb=learner.birth?parseDateInput(learner.birth):null,cb=client.birth?parseDateInput(client.birth):null;
+   const badges=(lb?starBadgeHTML(ln+'さんの本命星',getYearStar(lb.y,lb.m,lb.d).star):starBadgeHTML(ln+'さんの本命星',null))+(cb?starBadgeHTML(cn+'さんの本命星',getYearStar(cb.y,cb.m,cb.d).star):starBadgeHTML(cn+'さんの本命星',null));
+diff --git a/assets/style.css b/assets/style.css
+index 2312940..4bc20ef 100644
+--- a/assets/style.css
++++ b/assets/style.css
+@@ -146,6 +146,7 @@ body[data-c="7"] .step-hero{border-color:var(--blue);} body[data-c="7"] .num{bac
+ .jumprow{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 6px;}
+ body[data-c] .jumprow{display:none;}
+ .course13-home .svg-box{display:none;}
++@media (min-width:700px){.course13-home .svg-box{display:block;}}
+ .course-answer{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:inherit;font-size:15px;background:#fffdfa;resize:vertical;}
+ .deep-lesson h3{font-size:17px;margin:14px 0 8px;color:var(--gold);}
+ .deep-lesson ol{padding-left:1.5em;margin:10px 0;}
+diff --git a/bonus/index.html b/bonus/index.html
+index 42d14c6..6d50483 100644
+--- a/bonus/index.html
++++ b/bonus/index.html
+@@ -4,26 +4,21 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>巻末特典：早見ミニ辞典カード｜方位風水羅針術 完全版</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-3">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body>
+ 
+ <nav class="topnav">
+   <div class="bar">
+-    <a class='logo' href='/'>方位風水羅針術<span>・完全版</span></a>
++    <a class='logo' href='../'>方位風水羅針術<span>・完全版</span></a>
+     <div class="links">
+-      <a href='/'>ホーム</a>
+-      <a href='/step1'>STEP1</a>
+-      <a href='/step2'>STEP2</a>
+-      <a href='/step3'>STEP3</a>
+-      <a href='/step4'>STEP4</a>
+-      <a href='/step5'>STEP5</a>
+-      <a href='/step6'>STEP6</a>
+-      <a href='/step7'>STEP7</a>
+-      <a href='/ng'>NG表現</a>
+-      <a href='/worksheets'>シート</a>
+-      <a href='/final'>最終課題</a>
+-      <a class='current' href='/bonus'>特典</a>
++      <a href='../'>ホーム</a>
++      <a href='../lesson1/'>講座を始める</a>
++      <a href='../#toc'>13STEP一覧</a>
++      <a href='../ng/'>NG表現</a>
++      <a href='../worksheets/'>シート</a>
++      <a href='../final/'>最終課題</a>
++      <a class='current' href='../bonus/'>特典</a>
+     </div>
+   </div>
+ </nav>
+@@ -35,20 +30,20 @@
+ 
+   <div class="svg-row">
+     <div class="type-card"><div class="name">🧭 八方位ひとこと</div><p style="font-size:12.8px;">北=静けさ／北東=切替／東=成長／南東=縁／南=表現／南西=安定／西=楽しみ／北西=信頼</p></div>
+-    <div class="type-card"><div class="name">🌿 五行ひとこと</div><p style="font-size:12.8px;">木=成長／火=情熱／土=安定／金=収穫／水=知恵</p></div>
++    <div class="type-card"><div class="name">🌿 五行ひとこと</div><p style="font-size:12.8px;">木=成長／火=明るさ・情熱／土=安定／金=収穫／水=流れ・知恵</p></div>
+     <div class="type-card"><div class="name">⭐ 九星ひとこと</div><p style="font-size:12.8px;">一白=柔軟／二黒=堅実／三碧=行動／四緑=調整／五黄=中心／六白=責任／七赤=喜び／八白=節目／九紫=華やか</p></div>
+   </div>
+ 
+   <div class="safe-box">この教材はすべて「傾向」「ヒント」として作られています。人生の大切な決断は、現実的な条件とご自身の気持ちを最優先にしてください。ここまで読み進めていただき、ありがとうございました。</div>
+ 
+   <div class="pager">
+-    <a href='/final'><span class="dir">◀ 戻る</span>最終課題</a>
+-    <a class='next' href='/'><span class="dir">ホームへ ▶</span>目次に戻る</a>
++    <a href='../final/'><span class="dir">◀ 戻る</span>最終課題</a>
++    <a class='next' href='../'><span class="dir">ホームへ ▶</span>目次に戻る</a>
+   </div>
+ </section>
+ </div>
+ 
+-<footer>完全版 7STEPで学ぶ 方位風水羅針術</footer>
+-<script src="assets/app.js?v=20260712-3"></script>
++<footer>1テーマずつ13STEPで学ぶ 方位風水羅針術</footer>
++<script src="../assets/app.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/final/index.html b/final/index.html
+index 4e80adf..7e211de 100644
+--- a/final/index.html
++++ b/final/index.html
+@@ -4,26 +4,21 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>最終課題｜方位風水羅針術 完全版</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-3">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body>
+ 
+ <nav class="topnav">
+   <div class="bar">
+-    <a class='logo' href='/'>方位風水羅針術<span>・完全版</span></a>
++    <a class='logo' href='../'>方位風水羅針術<span>・完全版</span></a>
+     <div class="links">
+-      <a href='/'>ホーム</a>
+-      <a href='/step1'>STEP1</a>
+-      <a href='/step2'>STEP2</a>
+-      <a href='/step3'>STEP3</a>
+-      <a href='/step4'>STEP4</a>
+-      <a href='/step5'>STEP5</a>
+-      <a href='/step6'>STEP6</a>
+-      <a href='/step7'>STEP7</a>
+-      <a href='/ng'>NG表現</a>
+-      <a href='/worksheets'>シート</a>
+-      <a class='current' href='/final'>最終課題</a>
+-      <a href='/bonus'>特典</a>
++      <a href='../'>ホーム</a>
++      <a href='../lesson1/'>講座を始める</a>
++      <a href='../#toc'>13STEP一覧</a>
++      <a href='../ng/'>NG表現</a>
++      <a href='../worksheets/'>シート</a>
++      <a class='current' href='../final/'>最終課題</a>
++      <a href='../bonus/'>特典</a>
+     </div>
+   </div>
+ </nav>
+@@ -31,7 +26,7 @@
+ <div class="wrap">
+ <section>
+   <h2 style="margin-top:40px;">🎓 最終課題：1人分の方位風水アドバイス文を完成させる</h2>
+-  <p>生年月日と相談内容を入れると、本命星・月命星・年盤・月盤を自動算出し、ChatGPTにそのまま貼れるプロンプトを作ります。相性鑑定は<a href='/step7#tool-aisho'>STEP7の相性ワーク</a>で、2人の誕生日を入れるだけで生成できます。</p>
++  <p>生年月日と相談内容を入れると、本命星・月命星・年盤・月盤を自動算出し、ChatGPTにそのまま貼れるプロンプトを作ります。鑑定文の書き方は<a href='../lesson13/'>STEP13 鑑定文・ChatGPT</a>で復習できます。</p>
+ 
+   <div class="calc-box">
+     <h4>① 鑑定する方の情報を入力</h4>
+@@ -54,17 +49,17 @@
+     <button class="copy-btn" onclick="copyPrompt('f_prompt', this)">📋 コピーする</button>
+     <textarea id="f_prompt" readonly style="width:100%;min-height:430px;background:transparent;color:inherit;border:none;font-family:ui-monospace,Consolas,monospace;font-size:12.8px;line-height:1.8;resize:vertical;"></textarea>
+   </div>
+-  <div class="safe-box">星の計算は教材用の参考値です。節入り時刻の境界に生まれた方など、正式な鑑定と差が出る場合は、<a href='/step7#tool-personal'>STEP7の選択項目</a>で確認してください。</div>
++  <div class="safe-box">星の計算は教材用の参考値です。節入り時刻の境界に生まれた方など、正式な鑑定と差が出る場合は、<a href='../lesson6/'>STEP6 本命星</a>・<a href='../lesson7/'>STEP7 月命星</a>の講義で境界の考え方を確認してください。</div>
+ 
+   <div class="pager">
+-    <a href='/worksheets'><span class="dir">◀ 戻る</span>ワークシート集</a>
+-    <a class='next' href='/bonus'><span class="dir">次へ ▶</span>巻末特典</a>
++    <a href='../worksheets/'><span class="dir">◀ 戻る</span>ワークシート集</a>
++    <a class='next' href='../bonus/'><span class="dir">次へ ▶</span>巻末特典</a>
+   </div>
+ </section>
+ </div>
+ 
+-<footer>完全版 7STEPで学ぶ 方位風水羅針術</footer>
+-<script src="assets/app.js?v=20260712-3"></script>
++<footer>1テーマずつ13STEPで学ぶ 方位風水羅針術</footer>
++<script src="../assets/app.js?v=20260925-1"></script>
+ <script>
+ function updateFinalPrompt(){
+   const name = document.getElementById('f_name').value || '○○さん';
+diff --git a/index.html b/index.html
+index 435fb74..7467e43 100644
+--- a/index.html
++++ b/index.html
+@@ -4,19 +4,19 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>1テーマずつ13STEPで学ぶ 方位風水羅針術</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-3">
++<link rel="stylesheet" href="assets/style.css?v=20260925-1">
+ </head>
+ <body class="course13-home">
+ 
+ <nav class="topnav">
+   <div class="bar">
+-    <a class='logo' href='/'>方位風水羅針術<span>・完全版</span></a>
++    <a class='logo' href='./'>方位風水羅針術<span>・完全版</span></a>
+     <div class="links">
+-      <a class='current' href='/'>ホーム</a>
+-      <a href='/lesson1'>講座を始める</a>
++      <a class='current' href='./'>ホーム</a>
++      <a href='lesson1/'>講座を始める</a>
+       <a href="#toc">13STEP一覧</a>
+-      <a href='/final'>最終課題</a>
+-      <a href='/bonus'>特典</a>
++      <a href='final/'>最終課題</a>
++      <a href='bonus/'>特典</a>
+     </div>
+   </div>
+ </nav>
+@@ -64,46 +64,58 @@
+   <div class="point-box"><b>この講座のテーマ</b><br>用語だけを暗記するワークブックではありません。「何？ → なぜ必要？ → どこで使う？ → 自分の場合は？」の順で理解し、最後に実際の鑑定文まで作れるようになることがゴールです。</div>
+   <p>カードをタップすると、それぞれのページに移動します。最初から順番に読み進めるのがおすすめです。各ページの中の見出しはタップで開閉できます。</p>
+   <div class="tocgrid">
+-    <a href='/lesson1'><span class="n">STEP 1</span>方位風水の全体像</a>
+-    <a href='/lesson2'><span class="n">STEP 2</span>八方位</a>
+-    <a href='/lesson3'><span class="n">STEP 3</span>五行</a>
+-    <a href='/lesson4'><span class="n">STEP 4</span>八卦</a>
+-    <a href='/lesson5'><span class="n">STEP 5</span>九星</a>
+-    <a href='/lesson6'><span class="n">STEP 6</span>本命星</a>
+-    <a href='/lesson7'><span class="n">STEP 7</span>月命星</a>
+-    <a href='/lesson8'><span class="n">STEP 8</span>方位盤</a>
+-    <a href='/lesson9'><span class="n">STEP 9</span>吉方位・注意方位</a>
+-    <a href='/lesson10'><span class="n">STEP 10</span>住まい</a>
+-    <a href='/lesson11'><span class="n">STEP 11</span>部屋</a>
+-    <a href='/lesson12'><span class="n">STEP 12</span>行動への応用</a>
+-    <a href='/lesson13'><span class="n">STEP 13</span>鑑定文・ChatGPT</a>
+-    <a href='/ng'><span class="n">巻末</span>NG表現集・言い換え辞典</a>
+-    <a href='/worksheets'><span class="n">巻末</span>ワークシート集</a>
+-    <a href='/final'><span class="n">最終課題</span>アドバイス文を完成させる</a>
+-    <a href='/bonus'><span class="n">特典</span>早見ミニ辞典カード</a>
++    <a href='lesson1/'><span class="n">STEP 1</span>方位風水の全体像</a>
++    <a href='lesson2/'><span class="n">STEP 2</span>八方位</a>
++    <a href='lesson3/'><span class="n">STEP 3</span>五行</a>
++    <a href='lesson4/'><span class="n">STEP 4</span>八卦</a>
++    <a href='lesson5/'><span class="n">STEP 5</span>九星</a>
++    <a href='lesson6/'><span class="n">STEP 6</span>本命星</a>
++    <a href='lesson7/'><span class="n">STEP 7</span>月命星</a>
++    <a href='lesson8/'><span class="n">STEP 8</span>方位盤</a>
++    <a href='lesson9/'><span class="n">STEP 9</span>吉方位・注意方位</a>
++    <a href='lesson10/'><span class="n">STEP 10</span>住まい</a>
++    <a href='lesson11/'><span class="n">STEP 11</span>部屋</a>
++    <a href='lesson12/'><span class="n">STEP 12</span>行動への応用</a>
++    <a href='lesson13/'><span class="n">STEP 13</span>鑑定文・ChatGPT</a>
++    <a href='ng/'><span class="n">巻末</span>NG表現集・言い換え辞典</a>
++    <a href='worksheets/'><span class="n">巻末</span>ワークシート集</a>
++    <a href='final/'><span class="n">最終課題</span>アドバイス文を完成させる</a>
++    <a href='bonus/'><span class="n">特典</span>早見ミニ辞典カード</a>
+   </div>
+ 
+   <div class="svg-box">
+-    <svg viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="7ステップ学習ロードマップ">
+-      <line x1="60" y1="100" x2="840" y2="100" stroke="#ece7df" stroke-width="6"/>
++    <svg viewBox="0 0 920 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="13ステップ学習ロードマップ">
++      <line x1="40" y1="70" x2="880" y2="70" stroke="#ece7df" stroke-width="6"/>
+       <g font-size="12" font-family="inherit" text-anchor="middle">
+-        <g><a href='/step1'><circle cx="60" cy="100" r="26" fill="#d6486b"/><text x="60" y="105" fill="#fff" font-weight="700">1</text></a>
+-          <text x="60" y="150" fill="#2e2a25">とは何か</text></g>
+-        <g><a href='/step2'><circle cx="190" cy="100" r="26" fill="#e0812f"/><text x="190" y="105" fill="#fff" font-weight="700">2</text></a>
+-          <text x="190" y="150" fill="#2e2a25">八方位・五行</text></g>
+-        <g><a href='/step3'><circle cx="320" cy="100" r="26" fill="#b8860b"/><text x="320" y="105" fill="#fff" font-weight="700">3</text></a>
+-          <text x="320" y="150" fill="#2e2a25">九星</text></g>
+-        <g><a href='/step4'><circle cx="450" cy="100" r="26" fill="#0f9494"/><text x="450" y="105" fill="#fff" font-weight="700">4</text></a>
+-          <text x="450" y="150" fill="#2e2a25">本命星・方位盤</text></g>
+-        <g><a href='/step5'><circle cx="580" cy="100" r="26" fill="#7c5cd6"/><text x="580" y="105" fill="#fff" font-weight="700">5</text></a>
+-          <text x="580" y="150" fill="#2e2a25">吉方位を読む</text></g>
+-        <g><a href='/step6'><circle cx="710" cy="100" r="26" fill="#238a4e"/><text x="710" y="105" fill="#fff" font-weight="700">6</text></a>
+-          <text x="710" y="150" fill="#2e2a25">住まいへ応用</text></g>
+-        <g><a href='/step7'><circle cx="840" cy="100" r="26" fill="#2b6fd1"/><text x="840" y="105" fill="#fff" font-weight="700">7</text></a>
+-          <text x="840" y="150" fill="#2e2a25">アドバイス文</text></g>
++        <g><a href='lesson1/'><circle cx="40" cy="70" r="22" fill="#d6486b"/><text x="40" y="75" fill="#fff" font-weight="700">1</text></a>
++          <text x="40" y="120" fill="#2e2a25">全体像</text></g>
++        <g><a href='lesson2/'><circle cx="110" cy="70" r="22" fill="#e0812f"/><text x="110" y="75" fill="#fff" font-weight="700">2</text></a>
++          <text x="110" y="140" fill="#2e2a25">八方位</text></g>
++        <g><a href='lesson3/'><circle cx="180" cy="70" r="22" fill="#b8860b"/><text x="180" y="75" fill="#fff" font-weight="700">3</text></a>
++          <text x="180" y="120" fill="#2e2a25">五行</text></g>
++        <g><a href='lesson4/'><circle cx="250" cy="70" r="22" fill="#0f9494"/><text x="250" y="75" fill="#fff" font-weight="700">4</text></a>
++          <text x="250" y="140" fill="#2e2a25">八卦</text></g>
++        <g><a href='lesson5/'><circle cx="320" cy="70" r="22" fill="#7c5cd6"/><text x="320" y="75" fill="#fff" font-weight="700">5</text></a>
++          <text x="320" y="120" fill="#2e2a25">九星</text></g>
++        <g><a href='lesson6/'><circle cx="390" cy="70" r="22" fill="#238a4e"/><text x="390" y="75" fill="#fff" font-weight="700">6</text></a>
++          <text x="390" y="140" fill="#2e2a25">本命星</text></g>
++        <g><a href='lesson7/'><circle cx="460" cy="70" r="22" fill="#2b6fd1"/><text x="460" y="75" fill="#fff" font-weight="700">7</text></a>
++          <text x="460" y="120" fill="#2e2a25">月命星</text></g>
++        <g><a href='lesson8/'><circle cx="530" cy="70" r="22" fill="#d6486b"/><text x="530" y="75" fill="#fff" font-weight="700">8</text></a>
++          <text x="530" y="140" fill="#2e2a25">方位盤</text></g>
++        <g><a href='lesson9/'><circle cx="600" cy="70" r="22" fill="#e0812f"/><text x="600" y="75" fill="#fff" font-weight="700">9</text></a>
++          <text x="600" y="120" fill="#2e2a25">吉方位</text></g>
++        <g><a href='lesson10/'><circle cx="670" cy="70" r="22" fill="#b8860b"/><text x="670" y="75" fill="#fff" font-weight="700">10</text></a>
++          <text x="670" y="140" fill="#2e2a25">住まい</text></g>
++        <g><a href='lesson11/'><circle cx="740" cy="70" r="22" fill="#0f9494"/><text x="740" y="75" fill="#fff" font-weight="700">11</text></a>
++          <text x="740" y="120" fill="#2e2a25">部屋</text></g>
++        <g><a href='lesson12/'><circle cx="810" cy="70" r="22" fill="#7c5cd6"/><text x="810" y="75" fill="#fff" font-weight="700">12</text></a>
++          <text x="810" y="140" fill="#2e2a25">行動</text></g>
++        <g><a href='lesson13/'><circle cx="880" cy="70" r="22" fill="#238a4e"/><text x="880" y="75" fill="#fff" font-weight="700">13</text></a>
++          <text x="880" y="120" fill="#2e2a25">鑑定文</text></g>
+       </g>
+     </svg>
+-    <div class="cap">学習ロードマップ：1→7の順に進めば、最終的に自分でアドバイス文まで作れるようになります（丸をタップでもジャンプできます）</div>
++    <div class="cap">学習ロードマップ：STEP1→13の順に進めば、最終的に自分で鑑定文まで作れるようになります（丸をタップでもジャンプできます）</div>
+   </div>
+ 
+   <div class="safe-box">この教材はすべて「傾向」「ヒント」として作られています。人生の大切な決断は、現実的な条件とご自身の気持ちを最優先にしてください。</div>
+@@ -115,6 +127,6 @@
+   1テーマずつ13STEPで学ぶ 方位風水羅針術 ｜ 本教材は暮らしと行動を整えるための実践教材です。医療・金銭・恋愛の結果を保証するものではありません。
+ </footer>
+ 
+-<script src="assets/app.js?v=20260712-3"></script>
++<script src="assets/app.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson1/index.html b/lesson1/index.html
+index a36ed83..9f90c1b 100644
+--- a/lesson1/index.html
++++ b/lesson1/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 1</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="1">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson10/index.html b/lesson10/index.html
+index 13546c8..8328f22 100644
+--- a/lesson10/index.html
++++ b/lesson10/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 10</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="10">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson11/index.html b/lesson11/index.html
+index f55c39b..c06cb1f 100644
+--- a/lesson11/index.html
++++ b/lesson11/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 11</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="11">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson12/index.html b/lesson12/index.html
+index 58428d7..a23a91a 100644
+--- a/lesson12/index.html
++++ b/lesson12/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 12</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="12">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson13/index.html b/lesson13/index.html
+index 7cabf03..d248340 100644
+--- a/lesson13/index.html
++++ b/lesson13/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 13</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="13">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson2/index.html b/lesson2/index.html
+index 56b9099..1ad0d25 100644
+--- a/lesson2/index.html
++++ b/lesson2/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 2</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="2">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson3/index.html b/lesson3/index.html
+index 15afd34..a561bc0 100644
+--- a/lesson3/index.html
++++ b/lesson3/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 3</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="3">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson4/index.html b/lesson4/index.html
+index 50c0554..467370d 100644
+--- a/lesson4/index.html
++++ b/lesson4/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 4</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="4">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson5/index.html b/lesson5/index.html
+index 854d20b..f38d3a0 100644
+--- a/lesson5/index.html
++++ b/lesson5/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 5</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="5">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson6/index.html b/lesson6/index.html
+index d68e4b7..cb341e3 100644
+--- a/lesson6/index.html
++++ b/lesson6/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 6</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="6">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson7/index.html b/lesson7/index.html
+index 350bc89..96c7944 100644
+--- a/lesson7/index.html
++++ b/lesson7/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 7</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="7">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson8/index.html b/lesson8/index.html
+index 5ff82f0..5010693 100644
+--- a/lesson8/index.html
++++ b/lesson8/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 8</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="8">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/lesson9/index.html b/lesson9/index.html
+index b737720..a829d4b 100644
+--- a/lesson9/index.html
++++ b/lesson9/index.html
+@@ -4,11 +4,11 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>方位風水羅針術｜STEP 9</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-5">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body data-lesson="9">
+ <div id="course-root"></div>
+-<script src="assets/app.js?v=20260712-3"></script>
+-<script src="assets/course13.js?v=20260712-10"></script>
++<script src="../assets/app.js?v=20260925-1"></script>
++<script src="../assets/course13.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/ng/index.html b/ng/index.html
+index bca8400..8164042 100644
+--- a/ng/index.html
++++ b/ng/index.html
+@@ -4,26 +4,21 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>NG表現集・言い換え辞典｜方位風水羅針術 完全版</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-3">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body>
+ 
+ <nav class="topnav">
+   <div class="bar">
+-    <a class='logo' href='/'>方位風水羅針術<span>・完全版</span></a>
++    <a class='logo' href='../'>方位風水羅針術<span>・完全版</span></a>
+     <div class="links">
+-      <a href='/'>ホーム</a>
+-      <a href='/step1'>STEP1</a>
+-      <a href='/step2'>STEP2</a>
+-      <a href='/step3'>STEP3</a>
+-      <a href='/step4'>STEP4</a>
+-      <a href='/step5'>STEP5</a>
+-      <a href='/step6'>STEP6</a>
+-      <a href='/step7'>STEP7</a>
+-      <a class='current' href='/ng'>NG表現</a>
+-      <a href='/worksheets'>シート</a>
+-      <a href='/final'>最終課題</a>
+-      <a href='/bonus'>特典</a>
++      <a href='../'>ホーム</a>
++      <a href='../lesson1/'>講座を始める</a>
++      <a href='../#toc'>13STEP一覧</a>
++      <a class='current' href='../ng/'>NG表現</a>
++      <a href='../worksheets/'>シート</a>
++      <a href='../final/'>最終課題</a>
++      <a href='../bonus/'>特典</a>
+     </div>
+   </div>
+ </nav>
+@@ -56,8 +51,8 @@
+   </details>
+ 
+   <div class="pager">
+-    <a href='/step7'><span class="dir">◀ 戻る</span>STEP7 アドバイス文にする</a>
+-    <a class='next' href='/worksheets'><span class="dir">次へ ▶</span>ワークシート集</a>
++    <a href='../lesson13/'><span class="dir">◀ 戻る</span>STEP13 鑑定文・ChatGPT</a>
++    <a class='next' href='../worksheets/'><span class="dir">次へ ▶</span>ワークシート集</a>
+   </div>
+ </section>
+ </div>
+@@ -70,7 +65,7 @@
+   <button onclick="toggleTableMenu()">📊 早見表へジャンプ</button>
+ </div>
+ 
+-<footer>完全版 7STEPで学ぶ 方位風水羅針術</footer>
+-<script src="assets/app.js?v=20260712-3"></script>
++<footer>1テーマずつ13STEPで学ぶ 方位風水羅針術</footer>
++<script src="../assets/app.js?v=20260925-1"></script>
+ </body>
+ </html>
+diff --git a/worksheets/index.html b/worksheets/index.html
+index 8be7bed..7019036 100644
+--- a/worksheets/index.html
++++ b/worksheets/index.html
+@@ -4,26 +4,21 @@
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>ワークシート集｜方位風水羅針術 完全版</title>
+-<link rel="stylesheet" href="assets/style.css?v=20260712-3">
++<link rel="stylesheet" href="../assets/style.css?v=20260925-1">
+ </head>
+ <body>
+ 
+ <nav class="topnav">
+   <div class="bar">
+-    <a class='logo' href='/'>方位風水羅針術<span>・完全版</span></a>
++    <a class='logo' href='../'>方位風水羅針術<span>・完全版</span></a>
+     <div class="links">
+-      <a href='/'>ホーム</a>
+-      <a href='/step1'>STEP1</a>
+-      <a href='/step2'>STEP2</a>
+-      <a href='/step3'>STEP3</a>
+-      <a href='/step4'>STEP4</a>
+-      <a href='/step5'>STEP5</a>
+-      <a href='/step6'>STEP6</a>
+-      <a href='/step7'>STEP7</a>
+-      <a href='/ng'>NG表現</a>
+-      <a class='current' href='/worksheets'>シート</a>
+-      <a href='/final'>最終課題</a>
+-      <a href='/bonus'>特典</a>
++      <a href='../'>ホーム</a>
++      <a href='../lesson1/'>講座を始める</a>
++      <a href='../#toc'>13STEP一覧</a>
++      <a href='../ng/'>NG表現</a>
++      <a class='current' href='../worksheets/'>シート</a>
++      <a href='../final/'>最終課題</a>
++      <a href='../bonus/'>特典</a>
+     </div>
+   </div>
+ </nav>
+@@ -43,13 +38,13 @@
+   <details class="acc"><summary>⑧ アドバイス文作成シート</summary><div class="acc-body worksheet"><p>導入〜締めまでの下書き：</p><div class="wline"></div><div class="wline"></div><div class="wline"></div></div></details>
+ 
+   <div class="pager">
+-    <a href='/ng'><span class="dir">◀ 戻る</span>NG表現集</a>
+-    <a class='next' href='/final'><span class="dir">次へ ▶</span>最終課題</a>
++    <a href='../ng/'><span class="dir">◀ 戻る</span>NG表現集</a>
++    <a class='next' href='../final/'><span class="dir">次へ ▶</span>最終課題</a>
+   </div>
+ </section>
+ </div>
+ 
+-<footer>完全版 7STEPで学ぶ 方位風水羅針術</footer>
+-<script src="assets/app.js?v=20260712-3"></script>
++<footer>1テーマずつ13STEPで学ぶ 方位風水羅針術</footer>
++<script src="../assets/app.js?v=20260925-1"></script>
+ </body>
+ </html>
+-- 
+2.43.0
+
