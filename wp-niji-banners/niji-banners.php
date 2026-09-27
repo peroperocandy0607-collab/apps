@@ -2,12 +2,14 @@
 /**
  * Plugin Name: Niji Office 占い記事バナー自動挿入
  * Description: 指定カテゴリー（エンジェルナンバー・365日誕生日占いなど）の記事に、記事上バナー（過去世 or 天使を交互）と記事下バナー（霊性開花）を一括で自動挿入します。
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Niji Office
  *
  * 【設置方法】
  *   wp-content/mu-plugins/ に、このファイルと「niji-banners」フォルダ（画像3枚入り）をそのまま置くだけで有効になります。
  *   （mu-plugins フォルダが無ければ作成してください。有効化ボタンは不要です）
+ *   設置後、管理画面を1回開くと、最適化済みの画像3枚が「メディアライブラリ」に自動でアップロードされます。
+ *   以後はメディアライブラリの画像が使われ、スマホには小さいサイズが自動で配信されます（srcset）。
  *
  * 【最初に必ず設定する所】 すぐ下の「設定」の3か所だけです。
  */
@@ -96,7 +98,11 @@ function niji_banner_is_target_post( $post_id ) {
 				$term = get_term_by( 'name', $target, 'category' );
 			}
 		}
-		if ( $term && ! is_wp_error( $term ) && post_is_in_descendant_category( $term->term_id, $post_id ) ) {
+		if ( ! $term || is_wp_error( $term ) ) {
+			continue;
+		}
+		$children = get_term_children( $term->term_id, 'category' );
+		if ( ! is_wp_error( $children ) && $children && in_category( $children, $post_id ) ) {
 			return true;
 		}
 	}
@@ -104,18 +110,101 @@ function niji_banner_is_target_post( $post_id ) {
 }
 
 /**
+ * 画像をメディアライブラリへ登録（1枚につき1回だけ）
+ * 管理画面を開いたときに実行。登録済みなら何もしない。
+ */
+function niji_banner_attachment_id( $file ) {
+	$ids = get_option( 'niji_banner_attachments', array() );
+	if ( ! empty( $ids[ $file ] ) && 'attachment' === get_post_type( $ids[ $file ] ) ) {
+		return (int) $ids[ $file ];
+	}
+	return 0;
+}
+
+function niji_banner_import_images() {
+	if ( ! current_user_can( 'upload_files' ) ) {
+		return;
+	}
+	$files = array( 'banner-tenshi.webp', 'banner-kakoze.webp', 'banner-reisei.webp' );
+	$ids   = get_option( 'niji_banner_attachments', array() );
+	$items = niji_banner_items();
+	$alts  = array(
+		$items['top'][0]['img'] => $items['top'][0]['alt'],
+		$items['top'][1]['img'] => $items['top'][1]['alt'],
+		$items['bottom']['img'] => $items['bottom']['alt'],
+	);
+	$changed = false;
+
+	foreach ( $files as $file ) {
+		if ( niji_banner_attachment_id( $file ) ) {
+			continue;
+		}
+		$source = __DIR__ . '/niji-banners/' . $file;
+		if ( ! file_exists( $source ) ) {
+			continue;
+		}
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		// 元ファイルを残すため、一時コピーをアップロード
+		$tmp = wp_tempnam( $file );
+		copy( $source, $tmp );
+		$id = media_handle_sideload(
+			array( 'name' => $file, 'tmp_name' => $tmp ),
+			0,
+			isset( $alts[ $file ] ) ? $alts[ $file ] : 'Niji Office バナー'
+		);
+		if ( is_wp_error( $id ) ) {
+			@unlink( $tmp );
+			continue;
+		}
+		if ( isset( $alts[ $file ] ) ) {
+			update_post_meta( $id, '_wp_attachment_image_alt', $alts[ $file ] );
+		}
+		$ids[ $file ] = $id;
+		$changed      = true;
+	}
+	if ( $changed ) {
+		update_option( 'niji_banner_attachments', $ids, false );
+	}
+}
+add_action( 'admin_init', 'niji_banner_import_images' );
+
+/**
  * バナー1枚分のHTML
  */
 function niji_banner_html( $item, $position ) {
-	$src = plugins_url( 'niji-banners/' . $item['img'], __FILE__ );
+	$attr = array(
+		'class'    => 'niji-banner__img',
+		'alt'      => $item['alt'],
+		'loading'  => 'top' === $position ? 'eager' : 'lazy',
+		'decoding' => 'async',
+		'sizes'    => '(max-width: 800px) 100vw, 800px',
+	);
+	if ( 'top' === $position ) {
+		$attr['fetchpriority'] = 'high';
+	}
+
+	$id = niji_banner_attachment_id( $item['img'] );
+	if ( $id ) {
+		// メディアライブラリの画像（srcset付き）
+		$img = wp_get_attachment_image( $id, 'full', false, $attr );
+	} else {
+		// まだ登録前のときは、同梱の最適化画像をそのまま表示
+		$img = sprintf(
+			'<img src="%1$s" alt="%2$s" width="1400" height="560" loading="%3$s" decoding="async" class="niji-banner__img">',
+			esc_url( plugins_url( 'niji-banners/' . $item['img'], __FILE__ ) ),
+			esc_attr( $item['alt'] ),
+			esc_attr( $attr['loading'] )
+		);
+	}
 
 	return sprintf(
-		'<div class="niji-banner niji-banner--%1$s"><a href="%2$s"><img src="%3$s" alt="%4$s" width="1983" height="793" loading="%5$s" decoding="async"></a></div>',
+		'<div class="niji-banner niji-banner--%1$s"><a href="%2$s">%3$s</a></div>',
 		esc_attr( $position ),
 		esc_url( $item['url'] ),
-		esc_url( $src ),
-		esc_attr( $item['alt'] ),
-		'top' === $position ? 'eager' : 'lazy'
+		$img
 	);
 }
 
