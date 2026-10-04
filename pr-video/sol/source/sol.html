@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"ZK";src:url(ZenKakuGothicNew-Bold.ttf);font-weight:700}
+@font-face{font-family:"ZK";src:url(ZenKakuGothicNew-Black.ttf);font-weight:900}
+@font-face{font-family:"DG";src:url(DelaGothicOne-Regular.ttf)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:720px;overflow:hidden;background:#f6f2ea}
+body{font-family:"ZK",sans-serif;color:#1b2340}
+:root{--navy:#1b2340;--navy2:#2c3763;--gold:#c9a24e;--gold2:#e9cf8a}
+#stage{position:absolute;inset:0;overflow:hidden;background:#f6f2ea}
+#grid{position:absolute;inset:-40px;background-image:linear-gradient(#e9e3d6 1px,transparent 1px),linear-gradient(90deg,#e9e3d6 1px,transparent 1px);background-size:32px 32px}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,0) 55%,rgba(27,35,64,.10) 100%)}
+.el{position:absolute;opacity:0;will-change:transform,opacity}
+.cap{left:0;width:1280px;text-align:center;font-weight:900;font-size:36px;letter-spacing:.06em;color:var(--navy)}
+.cap span{position:relative;display:inline-block;padding:0 6px}
+.cap span:after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:5px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));transform-origin:left;transform:scaleX(var(--u,0))}
+.note{background:#fff;border-radius:6px;box-shadow:0 10px 24px rgba(27,35,64,.18);width:190px;height:118px;overflow:hidden;border:1px solid #e7e2f0}
+.note .h{height:30px;font-weight:900;font-size:16px;padding:5px 12px;color:var(--navy)}
+.note i{display:block;height:6px;border-radius:3px;background:#e6e3ee;margin:12px 14px 0}
+.form{background:#fff;border-radius:12px;box-shadow:0 18px 40px rgba(27,35,64,.18);width:470px;padding:18px 22px;border:1.5px solid #dcd7e8}
+.form h4{font-size:18px;font-weight:900;background:#efeaf9;margin:-18px -22px 14px;padding:10px 22px;border-radius:12px 12px 0 0}
+.form .r{font-size:15px;font-weight:700;margin-top:10px;position:relative}
+.form .r b{position:absolute;right:0;top:0;font-size:11px;color:#fff;background:#e2566f;border-radius:4px;padding:1px 7px}
+.form .r div{height:30px;border:1.5px solid #e1dcea;border-radius:6px;margin-top:6px;background:#fbfaff}
+.bub{background:var(--navy);color:#fff;border:2px solid var(--gold);border-radius:18px;padding:12px 18px;font-weight:900;font-size:19px;line-height:1.45;text-align:center;box-shadow:0 10px 26px rgba(27,35,64,.35);white-space:nowrap}
+.bub:after{content:"";position:absolute;width:16px;height:16px;background:var(--navy);border:2px solid var(--gold);border-top:0;border-left:0;transform:rotate(45deg);left:50%;margin-left:-8px;bottom:-10px}
+.bub.l:after{left:auto;right:auto;bottom:auto;top:50%;margin:-8px 0 0 0;left:-10px;transform:rotate(135deg)}
+.badge{height:46px;border-radius:999px;background:var(--navy);color:#fff;font-family:"DG";font-size:22px;letter-spacing:.08em;padding:0 22px 0 18px;line-height:46px;box-shadow:0 6px 16px rgba(27,35,64,.3);white-space:nowrap}
+.badge i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:10px;vertical-align:1px;box-shadow:0 0 10px currentColor}
+.ttl{font-weight:900;font-size:38px;letter-spacing:.04em;white-space:nowrap;color:var(--navy)}
+.panel{left:34px;top:189px;width:1012px;height:467px;border-radius:16px;background:#fff;border:2px solid var(--navy);box-shadow:0 18px 44px rgba(27,35,64,.25),0 0 0 6px rgba(201,162,78,.18);overflow:hidden}
+.panel img{position:absolute;left:3px;top:3px;width:1001px;height:457px}
+.corner{position:absolute;width:26px;height:26px;border:3px solid var(--gold)}
+.pill{border-radius:999px;font-weight:900;font-size:30px;padding:10px 30px;color:#fff;white-space:nowrap;box-shadow:0 10px 24px rgba(27,35,64,.25)}
+.sp{position:absolute;width:24px;height:24px}
+.big{font-family:"DG";color:var(--navy)}
+.shine{background:linear-gradient(100deg,var(--navy) 0%,var(--navy) 40%,#7a63d8 48%,var(--gold2) 50%,#7a63d8 52%,var(--navy) 60%,var(--navy) 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+.mark{font-family:"DG";color:var(--navy);position:absolute}
+</style></head><body>
+<div id="stage"><div id="cam" style="position:absolute;inset:0">
+  <div id="grid"></div><div id="vig"></div>
+  <svg id="speed" style="position:absolute;left:0;top:0;opacity:0" width="1280" height="720"></svg>
+  <div id="sparks"></div>
+
+  <!-- ===== S1-3 : 悩み ===== -->
+  <div class="el cap" id="cap1" style="top:40px" data-in="0.25" data-out="2.45" data-a="drop"><span>ココナラで出品したいけど…</span></div>
+  <div class="el cap" id="cap2" style="top:40px" data-in="2.5" data-out="4.7" data-a="slam"><span>書くことが、多すぎる…</span></div>
+  <div class="el cap" id="cap3" style="top:40px" data-in="5.0" data-out="6.75" data-a="drop"><span>何を書けば選ばれるの…？</span></div>
+
+  <div class="el" id="solA" style="left:60px;top:210px;width:290px;height:492px" data-in="0.25" data-out="6.8" data-a="left">
+    <img src="sol_full.png" style="width:290px;display:block">
+    <div class="el mark" id="q1" style="left:-10px;top:30px;font-size:46px" data-in="0.8" data-out="6.8" data-a="pop">?</div>
+    <div class="el mark" id="q2" style="left:250px;top:-10px;font-size:34px" data-in="1.1" data-out="6.8" data-a="pop">?</div>
+    <div class="el mark" id="q3" style="left:270px;top:90px;font-size:56px" data-in="1.5" data-out="6.8" data-a="pop">?</div>
+    <svg class="el" id="sweat" style="left:225px;top:40px" width="30" height="44" data-in="1.4" data-out="6.8" data-a="drip"><path d="M15 2 C 6 18, 2 26, 2 31 a13 13 0 0 0 26 0 c0-5-4-13-13-29z" fill="#8fc4ef" stroke="#1b2340" stroke-width="2"/></svg>
+    <div class="el mark" id="exc" style="left:230px;top:-60px;font-size:84px;color:#e2566f;text-shadow:3px 3px 0 #1b2340" data-in="2.55" data-out="4.6" data-a="pop">!?</div>
+    <svg class="el" id="gloom" style="left:20px;top:-20px" width="250" height="180" data-in="4.9" data-out="6.8" data-a="fade"><g stroke="#2c3763" stroke-width="4" opacity=".55" stroke-linecap="round"><line x1="40" y1="10" x2="40" y2="120"/><line x1="80" y1="0" x2="80" y2="90"/><line x1="125" y1="12" x2="125" y2="130"/><line x1="170" y1="0" x2="170" y2="100"/><line x1="210" y1="14" x2="210" y2="115"/></g></svg>
+  </div>
+
+  <div class="el note" style="left:470px;top:120px;--r:-4deg" data-in="0.75" data-out="4.72" data-a="fly"><div class="h" style="background:#a9e0c4">タイトル</div><i></i><i style="width:70%"></i><i style="width:85%"></i></div>
+  <div class="el note" style="left:700px;top:110px;--r:5deg" data-in="2.6" data-out="4.72" data-a="fly"><div class="h" style="background:#f6b6c8">キャッチコピー</div><i></i><i style="width:60%"></i><i style="width:80%"></i></div>
+  <div class="el note" style="left:430px;top:290px;--r:3deg" data-in="2.85" data-out="4.72" data-a="fly"><div class="h" style="background:#f4dc8a">サービス内容</div><i></i><i style="width:75%"></i><i style="width:90%"></i></div>
+  <div class="el note" style="left:680px;top:280px;--r:-5deg" data-in="3.3" data-out="4.72" data-a="fly"><div class="h" style="background:#cbb6f2">価格・オプション</div><i></i><i style="width:65%"></i><i style="width:80%"></i></div>
+  <div class="el note" style="left:470px;top:455px;--r:-2deg" data-in="3.5" data-out="4.72" data-a="fly"><div class="h" style="background:#a9d3f4">購入時のお願い</div><i></i><i style="width:70%"></i><i style="width:85%"></i></div>
+  <div class="el note" style="left:720px;top:450px;--r:6deg" data-in="3.75" data-out="4.72" data-a="fly"><div class="h" style="background:#f6c9a0">サムネイル</div><i></i><i style="width:55%"></i><i style="width:85%"></i></div>
+
+  <div class="el form" style="left:500px;top:150px" data-in="5.05" data-out="6.8" data-a="up">
+    <h4>サービスを出品する</h4>
+    <div class="r">タイトル<b>必須入力</b><div style="position:relative"><span id="caret" style="position:absolute;left:10px;top:5px;width:2px;height:18px;background:#1b2340"></span></div></div>
+    <div class="r">サービス内容<b>必須入力</b><div style="height:54px"></div></div>
+    <div class="r">価格・オプション<b>必須入力</b><div></div></div>
+    <div class="r">購入時のお願い<b>必須入力</b><div></div></div>
+  </div>
+
+  <!-- ===== S4 : そんなあなたに ===== -->
+  <div class="el" id="solB" style="left:70px;top:95px;width:340px" data-in="7.3" data-out="11.0" data-a="spring"><img src="sol_full.png" style="width:340px;display:block"></div>
+  <div class="el bub" style="left:330px;top:90px" data-in="8.25" data-out="11.0" data-a="pop">僕に任せて。</div>
+  <div class="el big" id="sonna" style="left:600px;top:60px;font-size:40px;letter-spacing:.08em" data-in="7.3" data-out="11.0" data-a="slam">そんなあなたに！！</div>
+  <div class="el" style="left:600px;top:122px;font-weight:900;font-size:66px;line-height:1.18;letter-spacing:.03em" data-in="7.6" data-out="11.0" data-a="slam"><span class="shine" id="ttl1">ココナラ<br>商品づくりスタジオ</span></div>
+  <div class="el pill" style="left:600px;top:318px;background:linear-gradient(90deg,var(--navy),var(--navy2));font-size:26px;padding:10px 28px;border:2px solid var(--gold)" data-in="7.9" data-out="11.0" data-a="wipe">あなたの得意を、選びたくなる商品に。</div>
+  <div class="el" style="left:600px;top:400px;width:510px;height:235px;border-radius:12px;overflow:hidden;border:2px solid var(--navy);box-shadow:0 18px 40px rgba(27,35,64,.3),0 0 0 6px rgba(201,162,78,.2)" data-in="8.0" data-out="11.0" data-a="up"><img src="thumb.png" style="width:510px;display:block"></div>
+
+  <!-- ===== Steps ===== -->
+  <div class="el panel" id="panel" data-in="11.1" data-out="47.5" data-a="zoomin"><img id="pimg" src="pf/p0001.jpg">
+    <span class="corner" style="left:6px;top:6px;border-right:0;border-bottom:0"></span><span class="corner" style="right:6px;top:6px;border-left:0;border-bottom:0"></span><span class="corner" style="left:6px;bottom:6px;border-right:0;border-top:0"></span><span class="corner" style="right:6px;bottom:6px;border-left:0;border-top:0"></span>
+  </div>
+  <div id="titles"></div>
+  <div class="el" id="solC" style="left:1040px;top:468px;width:240px" data-in="11.3" data-out="47.5" data-a="right"><img src="sol_upper.png" style="width:240px;display:block"></div>
+  <div id="bubs"></div>
+  <div class="el mark" id="bang" style="left:995px;top:470px;font-size:90px;color:var(--gold);text-shadow:3px 3px 0 #1b2340" data-in="32.0" data-out="34.0" data-a="pop">!</div>
+
+  <!-- ===== Points ===== -->
+  <div class="el big" style="left:0;width:1280px;text-align:center;top:52px;font-size:40px;letter-spacing:.12em" data-in="48.1" data-out="52.4" data-a="slam"><span style="color:var(--gold)">— </span>うれしいポイント<span style="color:var(--gold)"> —</span></div>
+  <div class="el pill" style="left:250px;top:140px;background:#2f8f6b" data-in="48.45" data-out="52.4" data-a="stamp">登録不要</div>
+  <div class="el pill" style="left:790px;top:140px;background:#c4466b" data-in="48.85" data-out="52.4" data-a="stamp">AI利用料なし</div>
+  <div class="el pill" style="left:0;width:1280px;text-align:center;top:222px;box-shadow:none;padding:0" data-in="49.2" data-out="52.4" data-a="stamp"><span class="pill" style="display:inline-block;background:#b8862c">1〜20商品をまとめて</span></div>
+  <div class="el pill" style="left:0;width:1280px;text-align:center;top:304px;box-shadow:none;padding:0" data-in="49.5" data-out="52.4" data-a="stamp"><span class="pill" style="display:inline-block;background:linear-gradient(90deg,var(--navy),#5a4cc0)">初めての出品も、商品追加も</span></div>
+  <div class="el" id="solD" style="left:500px;top:395px;width:280px" data-in="49.6" data-out="52.4" data-a="spring"><img src="sol_upper.png" style="width:280px;display:block"></div>
+  <div class="el bub l" style="left:790px;top:470px" data-in="50.0" data-out="52.4" data-a="pop">これなら、続けられる。</div>
+
+  <!-- ===== End ===== -->
+  <div class="el" id="solE" style="left:110px;top:95px;width:345px" data-in="52.55" data-out="57" data-a="left"><img src="sol_full.png" style="width:345px;display:block"></div>
+  <div class="el" style="left:755px;top:95px;width:170px;height:170px" data-in="52.9" data-out="57" data-a="spin">
+    <svg width="170" height="170" viewBox="0 0 170 170"><defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#e9cf8a"/><stop offset="1" stop-color="#c9a24e"/></linearGradient></defs>
+      <circle cx="85" cy="85" r="80" fill="#fff" stroke="url(#gg)" stroke-width="4"/>
+      <g fill="none" stroke-width="7" stroke-linecap="round"><path d="M38 100 A47 47 0 0 1 132 100" stroke="#f19ab6"/><path d="M48 100 A37 37 0 0 1 122 100" stroke="#f5c77a"/><path d="M58 100 A27 27 0 0 1 112 100" stroke="#8fd3c1"/><path d="M68 100 A17 17 0 0 1 102 100" stroke="#9db5f0"/></g>
+      <text x="85" y="128" text-anchor="middle" font-family="DG" font-size="13" fill="#1b2340" letter-spacing="1">NIJI OFFICE</text></svg>
+  </div>
+  <div class="el" style="left:500px;top:300px;width:680px;text-align:center;font-weight:900;font-size:44px;white-space:nowrap;letter-spacing:.04em" data-in="53.2" data-out="57" data-a="slam"><span class="shine" id="ttl2">ココナラ商品づくりスタジオ</span></div>
+  <div class="el" style="left:500px;top:385px;width:680px;text-align:center" data-in="53.55" data-out="57" data-a="wipe"><span class="pill" style="display:inline-block;background:linear-gradient(90deg,var(--navy),var(--navy2));font-size:24px;padding:9px 26px;border:2px solid var(--gold)">あなたの得意を、選びたくなる商品に。</span></div>
+
+  <!-- wipes -->
+  <div id="wipe" style="position:absolute;inset:0;pointer-events:none"></div>
+  <div id="flash" style="position:absolute;inset:0;background:#fff;opacity:0"></div>
+</div>
+<div id="fade" style="position:absolute;inset:0;background:#f6f2ea;opacity:0"></div>
+</div>
+<script>
+// ---- step titles & bubbles (timings follow the reference video)
+const STEPS=[
+ {i:11.25,o:18.15,b:'STEP 1',c:'#4fd1a5',t:'お客様のお悩みを選ぶだけ'},
+ {i:18.2,o:24.2,b:'STEP 2',c:'#f27aa0',t:'お試し → 基本 → 充実の組み合わせに'},
+ {i:24.25,o:29.65,b:'STEP 3',c:'#f2c94c',t:'あなたらしさをひとこと'},
+ {i:29.7,o:35.6,b:'STEP 4',c:'#9b7cff',t:'ChatGPTへの依頼文が完成！'},
+ {i:35.65,o:41.8,b:'ほかにも！',c:'#5ab4f0',t:'メモから商品ページの文章も'},
+ {i:41.85,o:47.45,b:'ほかにも！',c:'#f59e5b',t:'サムネイル用のプロンプトも'}];
+const BUBS=[[11.6,14.75,'悩みは<br>クリックで選ぶだけ。'],[14.8,18.15,'得意な占術も<br>ここで選べる。'],[18.5,20.95,'まず、<br>いくつ作るか決めて'],[21.0,24.2,'価格も<br>サッと調整。'],[24.6,29.65,'例文ボタンで<br>すぐ入る。'],[30.0,31.95,'ボタンを<br>押して——'],[32.0,35.6,'コピーしてChatGPTへ。<br>それだけ。'],[36.0,41.8,'メモから<br>タイトルも本文も。'],[42.2,47.45,'色とテイストを<br>選ぶだけ。']];
+const T=document.getElementById('titles'),B=document.getElementById('bubs');
+STEPS.forEach(s=>{T.insertAdjacentHTML('beforeend',`<div class="el badge" style="left:40px;top:96px" data-in="${s.i}" data-out="${s.o}" data-a="left"><i style="background:${s.c};color:${s.c}"></i>${s.b}</div><div class="el ttl" style="left:${s.b.length>6?222:212}px;top:94px" data-in="${s.i+0.15}" data-out="${s.o}" data-a="wipe">${s.t}</div>`);});
+BUBS.forEach(b=>{B.insertAdjacentHTML('beforeend',`<div class="el bub" style="left:1052px;top:330px;width:218px;white-space:normal;font-size:17px;padding:11px 10px" data-in="${b[0]}" data-out="${b[1]}" data-a="pop">${b[2]}</div>`);});
+
+const EL=[...document.querySelectorAll('.el')].map(e=>({e,i:+e.dataset.in,o:+e.dataset.out,a:e.dataset.a}));
+const clamp=x=>Math.max(0,Math.min(1,x)),eo=x=>1-Math.pow(1-x,3),eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const back=x=>{const c=2.2;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const elastic=x=>x<=0?0:x>=1?1:Math.pow(2,-10*x)*Math.sin((x*10-0.75)*2.094)+1;
+// camera shakes [start,dur,amp]
+const SH=[[2.55,.35,10],[2.85,.15,5],[3.3,.15,5],[3.5,.15,5],[3.75,.2,6],[7.3,.45,14],[7.6,.3,8],[11.1,.2,4],[32.0,.4,10],[47.95,.3,8],[48.45,.15,6],[48.85,.15,6],[49.2,.15,6],[49.5,.2,7],[53.2,.25,6]];
+// sparkles
+const SPK=[];const sp=document.getElementById('sparks');const R=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(11);
+for(let k=0;k<24;k++){const d=document.createElementNS('http://www.w3.org/2000/svg','svg');d.setAttribute('viewBox','0 0 20 20');d.setAttribute('class','sp');d.innerHTML='<path d="M10 0 L11.6 8.4 L20 10 L11.6 11.6 L10 20 L8.4 11.6 L0 10 L8.4 8.4Z" fill="'+(k%3?'#d4b062':'#1b2340')+'"/>';d.style.left=(R()*1250)+'px';d.style.top=(R()*700)+'px';sp.appendChild(d);SPK.push({d,s:.35+R()*.7,ph:R()*6.3,v:.7+R()*1.5});}
+// speed lines
+const SV=document.getElementById('speed');let sl='';for(let k=0;k<64;k++){const a=k/64*Math.PI*2+(R()-.5)*.05,r1=210+R()*90,r2=900;sl+=`<line x1="${860+Math.cos(a)*r1}" y1="${300+Math.sin(a)*r1*0.8}" x2="${860+Math.cos(a)*r2}" y2="${300+Math.sin(a)*r2}" stroke="#1b2340" stroke-width="${1+R()*4}" opacity="${.25+R()*.35}"/>`;}SV.innerHTML=sl;
+// wipes
+const W=document.getElementById('wipe');const WC=['#1b2340','#9b7cff','#f27aa0','#f2c94c','#4fd1a5','#5ab4f0','#1b2340'];
+WC.forEach((c,k)=>W.insertAdjacentHTML('beforeend',`<div class="wb" style="position:absolute;left:-200px;top:${k*112-40}px;width:1700px;height:118px;background:${c};transform-origin:left"></div>`));
+const WB=[...W.children];
+function wipeAt(t,t0){const p=(t-t0)/0.6;if(p<0||p>1)return false;WB.forEach((b,k)=>{const d=k*0.05;const q=clamp((p-d)/0.55);const inx=eio(clamp(q*2)),outx=eio(clamp(q*2-1));b.style.transform=`skewX(-20deg) translateX(${-1700+1700*inx+1900*outx}px)`;});return true;}
+
+let fixed=false;function render(t){
+  {document.querySelectorAll('#titles .badge').forEach(b=>{const tt=b.nextElementSibling;tt.style.left=(40+b.offsetWidth+18)+'px';});fixed=true;}
+  for(const x of EL){
+    const d=x.a==='slam'||x.a==='stamp'?0.28:x.a==='spring'?0.7:0.4;
+    const pin=clamp((t-x.i)/d),pout=clamp((t-(x.o-0.3))/0.3);let a=eo(pin),op=a*(1-pout),tr='';
+    switch(x.a){
+      case 'up':tr=`translateY(${(1-a)*40-pout*20}px)`;break;
+      case 'drop':tr=`translateY(${(1-a)*-30}px)`;break;
+      case 'left':tr=`translateX(${(1-a)*-120-pout*60}px)`;break;
+      case 'right':tr=`translateX(${(1-a)*120}px)`;break;
+      case 'pop':tr=`scale(${pin<1?0.3+0.7*back(pin):1})`;op=clamp(pin*3)*(1-pout);break;
+      case 'slam':tr=`scale(${2.2-1.2*eo(pin)})`;op=clamp(pin*2.5)*(1-pout);break;
+      case 'stamp':tr=`scale(${pin<1?1.9-0.9*back(pin)*1:1}) rotate(${(1-eo(pin))*-6}deg)`;op=clamp(pin*3)*(1-pout);break;
+      case 'spring':tr=`translateY(${(1-elastic(pin))*160}px)`;op=clamp(pin*4)*(1-pout);break;
+      case 'fly':{const r=getComputedStyle(x.e).getPropertyValue('--r')||'0deg';tr=`translate(${(1-a)*260}px,${(1-a)*-80}px) rotate(calc(${r} * ${0.2+0.8*a} + ${(1-a)*30}deg)) scale(${1.15-0.15*a})`;break;}
+      case 'wipe':x.e.style.clipPath=`inset(0 ${100-100*eo(pin)}% 0 0)`;op=1*(1-pout)*(pin>0?1:0);tr=`translateX(${(1-a)*-14}px)`;break;
+      case 'zoomin':tr=`scale(${0.9+0.1*a})`;break;
+      case 'spin':tr=`rotate(${(1-a)*-180}deg) scale(${0.4+0.6*back(clamp(pin))})`;op=clamp(pin*3)*(1-pout);break;
+      case 'drip':tr=`translateY(${clamp((t-x.i)/2)*30}px)`;break;
+      default:break;}
+    x.e.style.opacity=op;x.e.style.transform=tr;
+  }
+  // Sol reactions
+  const A=document.getElementById('solA');
+  let ra=0,ry=0,rs=1;
+  if(t>0.9&&t<2.5)ra=-5+Math.sin(t*5)*1.5;                         // 首をかしげる
+  if(t>=2.5&&t<4.7){const j=clamp((t-2.5)/0.35);ry=-Math.sin(j*Math.PI)*55;ra=Math.sin(t*28)*3*clamp((4.0-t)*2);} // 驚いてジャンプ＋震え
+  if(t>=3.95&&t<4.7)rs=1+0.12*eo(clamp((t-3.95)/0.2));               // ズームでパンチ
+  if(t>=4.7)ra=-7+Math.sin(t*2)*1;                                     // うなだれる
+  A.style.transform+=` translateY(${ry}px) rotate(${ra}deg) scale(${rs})`;A.style.transformOrigin='50% 90%';
+  ['q1','q2','q3'].forEach((id,k)=>{const q=document.getElementById(id);q.style.transform+=` translateY(${Math.sin(t*4+k*2)*6}px) rotate(${Math.sin(t*3+k)*12}deg)`;});
+  const caret=document.getElementById('caret');caret.style.opacity=(Math.floor(t*2.5)%2)?0:1;
+  document.querySelectorAll('.cap').forEach(c=>{const i=+c.dataset.in;c.style.setProperty('--u',eo(clamp((t-i-0.25)/0.4)));});
+  const B2=document.getElementById('solB');B2.style.transform+=` translateY(${Math.sin(t*2.4)*5}px)`;
+  const C=document.getElementById('solC');let cy=Math.sin(t*2.2)*4,cs=1;
+  for(const s of STEPS){const j=clamp((t-s.i)/0.35);if(j>0&&j<1)cy-=Math.sin(j*Math.PI)*30;}
+  if(t>=32&&t<32.6){const j=clamp((t-32)/0.6);cy-=Math.sin(j*Math.PI)*45;cs=1+0.15*Math.sin(j*Math.PI);}
+  C.style.transform+=` translateY(${cy}px) scale(${cs})`;C.style.transformOrigin='50% 100%';
+  const D=document.getElementById('solD');D.style.transform+=` translateY(${Math.sin(t*2.6)*5}px)`;
+  const E=document.getElementById('solE');E.style.transform+=` translateY(${Math.sin(t*2)*5}px)`;
+  // shine sweep on titles
+  [['ttl1',8.2],['ttl2',53.6]].forEach(([id,t0])=>{const p=clamp((t-t0)/1.1);document.getElementById(id).style.backgroundPosition=`${100-100*p}% 0`;});
+  // speed lines
+  document.getElementById('speed').style.opacity=clamp((t-7.25)/0.1)*(1-clamp((t-7.9)/0.6))*0.9;
+  // panel video (ref frames 11.0s → 24fps)
+  if(t>=11&&t<47.6){const f=Math.min(880,Math.max(1,Math.floor((t-11)*24)+1));const s='pf/p'+String(f).padStart(4,'0')+'.jpg';const im=document.getElementById('pimg');if(!im.src.endsWith(s))im.src=s;}
+  // sparkles
+  const boost=(t>7.25&&t<11)||(t>31.9&&t<33.5)||t>52.5?1:0.45;
+  SPK.forEach(s=>{const v=(Math.sin(t*s.v*2.2+s.ph)+1)/2;s.d.style.opacity=v*boost;s.d.style.transform=`scale(${s.s*(0.5+0.6*v)}) rotate(${t*30*s.v}deg)`;});
+  // wipes
+  const w1=wipeAt(t,6.72),w2=wipeAt(t,47.42);W.style.display=(w1||w2)?'block':'none';
+  // flashes
+  const fl=Math.max(clamp(1-(t-7.28)/0.25)*(t>=7.28?1:0),clamp(1-(t-32.0)/0.3)*(t>=32?0.7:0));document.getElementById('flash').style.opacity=fl;
+  // camera shake
+  let sx=0,sy=0;for(const[s0,du,am]of SH){if(t>=s0&&t<s0+du){const k=1-(t-s0)/du;sx+=Math.sin(t*90+s0)*am*k;sy+=Math.cos(t*77+s0*3)*am*k;}}
+  document.getElementById('cam').style.transform=`translate(${sx}px,${sy}px)`;
+  document.getElementById('grid').style.transform=`translate(${(t*6)%32}px,${(t*3)%32}px)`;
+  // fades
+  document.getElementById('fade').style.opacity=Math.max(clamp(1-t/0.25),clamp((t-56.2)/0.5),clamp(1-Math.abs(t-11.0)/0.12)*0.0);
+}
+window.render=render;render(0);
+</script></body></html>
